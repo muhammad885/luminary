@@ -16,7 +16,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SessionProvider session={session} key={session?.user?.id ?? 'Customer'}>
+        <SessionProvider session={session} key={session?.user?.id}>
           <Providers>
             {children}
           </Providers>
