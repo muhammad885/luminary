@@ -1,9 +1,9 @@
 import NextAuth from 'next-auth';
 import authConfig from './auth.config';
 import { getUserById } from './data/user';
-import TwoFactorConfirmation from './model/two-factor-confirmation';
 import { getTwoFactorConfirmationByUserId } from './data/password-reset-token';
 import dbConnect from './lib/mongodb';
+import { deleteTwoFactorConfirmationById } from './data/two-factor';
 
 export const DEFAULT_LOGIN_REDIRECT = '/dashboard';
 
@@ -19,11 +19,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!existingUser?.isVerified) return false;
 
         if (existingUser.isTwoFactorEnabled) {
-          const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser._id);
-          if (!twoFactorConfirmation) return false;
+      const confirmation = await getTwoFactorConfirmationByUserId(existingUser._id);
+      if (!confirmation) return false;
 
-          await TwoFactorConfirmation.findByIdAndDelete(twoFactorConfirmation._id);
-        }
+      await deleteTwoFactorConfirmationById(confirmation._id);
+    }
 
         return true;
       } catch (error) {
