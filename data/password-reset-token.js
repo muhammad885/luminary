@@ -2,7 +2,6 @@ import dbConnect from "@/lib/mongodb";
 import ResetToken from "@/model/reset-password";
 import TwoFactorToken from "@/model/two-factor";
 import TwoFactorConfirmation from "@/model/two-factor-confirmation";
-import mongoose from "mongoose";
 
 export const getPasswordResetTokenByToken = async (token) => {
   try {
@@ -61,7 +60,7 @@ export const getTwoFactorTokenByEmail = async (email) => {
 };
 
 export const getTwoFactorConfirmationByUserId = async (userId) => {
-  if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+  if (!userId) {
     console.warn('Invalid userId provided to getTwoFactorConfirmationByUserId');
     return null;
   }

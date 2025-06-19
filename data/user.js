@@ -1,7 +1,6 @@
 
 import dbConnect from '@/lib/mongodb';
 import User from '@/model/User';
-import mongoose from 'mongoose';
 
 export const getUserByEmail = async (email) => {
   if (!email || typeof email !== 'string') {
@@ -29,7 +28,7 @@ export const getUserByEmail = async (email) => {
 
 export const getUserById = async (id) => {
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
+      if (!id) {
         return null;
       }
 
