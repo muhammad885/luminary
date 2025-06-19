@@ -4,7 +4,6 @@ import NextAuth from 'next-auth';
 import authConfig from './auth.config';
 import { getUserById } from './data/user';
 import { getTwoFactorConfirmationByUserId } from './data/password-reset-token';
-import dbConnect from './lib/mongodb';
 import { deleteTwoFactorConfirmationById } from './data/two-factor';
 
 export const DEFAULT_LOGIN_REDIRECT = '/dashboard';
@@ -14,9 +13,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user }) {
       try {
         if (!user?.id) return false;
-
-        await dbConnect();
-
         const existingUser = await getUserById(user.id);
         if (!existingUser?.isVerified) return false;
 
