@@ -1,10 +1,12 @@
-export const runtime = 'nodejs'; // 👈 This disables Edge Runtime
 
 import NextAuth from 'next-auth';
 import authConfig from './auth.config';
 import { getUserById } from './data/user';
 import { getTwoFactorConfirmationByUserId } from './data/password-reset-token';
 import { deleteTwoFactorConfirmationById } from './data/two-factor';
+
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import clientPromise from "./lib/mongodb-driver";
 
 export const DEFAULT_LOGIN_REDIRECT = '/dashboard';
 

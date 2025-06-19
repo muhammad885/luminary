@@ -1,4 +1,3 @@
-import dbConnect from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
 import { loginSchema } from "./schemas/authSchema";
@@ -15,8 +14,6 @@ const authConfig = {
 
         if(validatedFields.success){
           const { email, password} = validatedFields.data;
-
-          await dbConnect();
 
           const user = await getUserByEmail(email)
           if (!user) return null;
