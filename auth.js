@@ -1,3 +1,5 @@
+export const runtime = 'nodejs'; // 👈 This disables Edge Runtime
+
 import NextAuth from 'next-auth';
 import authConfig from './auth.config';
 import { getUserById } from './data/user';
