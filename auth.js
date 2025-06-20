@@ -5,9 +5,6 @@ import { getUserById } from './data/user';
 import { getTwoFactorConfirmationByUserId } from './data/password-reset-token';
 import { deleteTwoFactorConfirmationById } from './data/two-factor';
 
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import clientPromise from "./lib/mongodb-driver";
-
 export const DEFAULT_LOGIN_REDIRECT = '/dashboard';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
