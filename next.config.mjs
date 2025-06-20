@@ -5,11 +5,13 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'randomuser.me',
-        // No need for port if using default (443 for https)
-        pathname: '/api/portraits/**', // Allows all paths under /api/portraits/
+        pathname: '/api/portraits/**',
       },
     ],
   },
+  // experimental: {
+  //   nodeMiddleware: true, // Enable Node.js runtime for middleware
+  // },
 };
 
 export default nextConfig;
