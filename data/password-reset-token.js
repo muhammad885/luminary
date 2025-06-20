@@ -1,43 +1,32 @@
-import mongoose from 'mongoose';
+import dbConnect from "@/lib/mongodb";
 import ResetToken from "@/model/reset-password";
 import TwoFactorToken from "@/model/two-factor";
 import TwoFactorConfirmation from "@/model/two-factor-confirmation";
 
-// Only attempt to connect if we're in a Node.js environment
-const connectIfNeeded = async () => {
-  if (typeof window === 'undefined' && process.env.NEXT_RUNTIME !== 'edge') {
-    if (mongoose.connection.readyState === 0) { // 0 = disconnected
-      try {
-        await mongoose.connect(process.env.MONGODB_URI, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        });
-      } catch (error) {
-        console.error('MongoDB connection error:', error);
-      }
-    }
-  }
-};
+export const runtime = 'nodejs'; // 👈 Force Node.js runtime
 
 export const getPasswordResetTokenByToken = async (token) => {
   try {
-    await connectIfNeeded();
-    return await ResetToken.findOne({ token });
+    await dbConnect();
+    const passwordResetToken = await ResetToken.findOne({ token });
+    return passwordResetToken;
   } catch (error) {
-    console.error('Error fetching password reset token:', error);
     return null;
   }
 };
 
+
+
 export const getPasswordResetTokenByEmail = async (email) => {
-  try {
-    await connectIfNeeded();
-    return await ResetToken.findOne({ email });
-  } catch (error) {
-    console.error('Error fetching password reset token by email:', error);
-    return null;
-  }
-};
+    try {
+      await dbConnect();
+      const passwordResetToken = await ResetToken.findOne({ email });
+      return passwordResetToken;
+    } catch (error) {
+      return null;
+    }
+  };
+
 
 export const getTwoFactorTokenByToken = async (token) => {
   if (!token) {
@@ -46,12 +35,12 @@ export const getTwoFactorTokenByToken = async (token) => {
   }
 
   try {
-    await connectIfNeeded();
+    await dbConnect();
     return await TwoFactorToken.findOne({ token })
-      .select('-__v')
-      .lean();
+      .select('-__v') // Exclude version key
+      .lean(); // Convert to plain JS object
   } catch (error) {
-    console.error("Error fetching two-factor token:", error);
+    console.error("Error fetching two-factor token:", error.message);
     return null;
   }
 };
@@ -63,10 +52,11 @@ export const getTwoFactorTokenByEmail = async (email) => {
   }
 
   try {
-    await connectIfNeeded();
-    return await TwoFactorToken.findOne({ email }).lean();
+    await dbConnect();
+    return await TwoFactorToken.findOne({ email })
+      .lean();
   } catch (error) {
-    console.error("Error fetching two-factor token by email:", error);
+    console.error("Error fetching two-factor token by email:", error.message);
     return null;
   }
 };
@@ -78,27 +68,15 @@ export const getTwoFactorConfirmationByUserId = async (userId) => {
   }
 
   try {
-    await connectIfNeeded();
-    return await TwoFactorConfirmation.findOne({ userId })
-      .select('-__v')
-      .lean();
+    await dbConnect();
+    const twoFactorConfirmation = await TwoFactorConfirmation.findOne({ userId })
+      .select('-__v') // Exclude version key
+      .lean(); // Convert to plain JS object
+    
+    return twoFactorConfirmation;
   } catch (error) {
-    console.error("Error fetching two-factor confirmation:", error);
+    console.error("Error fetching two-factor confirmation:", error.message);
     return null;
   }
 };
-
-export const deleteTwoFactorConfirmationById = async (id) => {
-  if (!id) {
-    console.warn('Invalid id provided to deleteTwoFactorConfirmationById');
-    return null;
-  }
-
-  try {
-    await connectIfNeeded();
-    return await TwoFactorConfirmation.findByIdAndDelete(id);
-  } catch (error) {
-    console.error("Error deleting two-factor confirmation:", error);
-    return null;
-  }
-};
+  

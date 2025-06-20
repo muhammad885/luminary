@@ -5,6 +5,8 @@ import { getUserById } from './data/user';
 import { getTwoFactorConfirmationByUserId } from './data/password-reset-token';
 import { deleteTwoFactorConfirmationById } from './data/two-factor';
 
+export const runtime = 'nodejs'; // 👈 Force Node.js runtime
+
 export const DEFAULT_LOGIN_REDIRECT = '/dashboard';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
