@@ -1,6 +1,8 @@
 import dbConnect from "@/lib/mongodb";
 import VerificationToken from "@/model/verification";
 
+export const runtime = 'nodejs'; // Explicit Node.js runtime
+
 export const getVerificationTokenByToken = async (token) => {
   try {
     await dbConnect();
