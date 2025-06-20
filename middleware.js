@@ -10,8 +10,6 @@ import {
   customerRoutes,
 } from './routes';
 
-export const runtime = 'nodejs'; // 👈 Force Node.js runtime
-
 function matchRoute(pathname, routes) {
   return routes.some(route => {
     if (pathname === route) return true;
