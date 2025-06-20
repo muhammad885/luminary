@@ -3,7 +3,6 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/model/User';
 
 
-export const runtime = 'nodejs'; // Explicit Node.js runtime
 
 export const getUserByEmail = async (email) => {
   if (!email || typeof email !== 'string') {

@@ -3,7 +3,6 @@ import ResetToken from "@/model/reset-password";
 import TwoFactorToken from "@/model/two-factor";
 import TwoFactorConfirmation from "@/model/two-factor-confirmation";
 
-export const runtime = 'nodejs'; // 👈 Force Node.js runtime
 
 export const getPasswordResetTokenByToken = async (token) => {
   try {
