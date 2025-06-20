@@ -9,9 +9,9 @@ const nextConfig = {
       },
     ],
   },
-  // experimental: {
-  //   nodeMiddleware: true, // Enable Node.js runtime for middleware
-  // },
+  experimental: {
+    nodeMiddleware: true, // Enable Node.js runtime for middleware
+  },
 };
 
 export default nextConfig;
