@@ -1,6 +1,6 @@
-import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
 import { loginSchema } from "./schemas/authSchema";
+import { comparePasswords } from "./app/auth/password";
 
 const authConfig = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -33,7 +33,7 @@ const authConfig = {
           }
 
           // 4. Compare passwords
-          const isValid = await bcrypt.compare(password, user.password);
+          const isValid = await comparePasswords(password, user.password);
           if (!isValid) {
             throw new Error("Invalid password");
           }
