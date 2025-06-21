@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
 import { loginSchema } from "./schemas/authSchema";
-import { getUserByEmail } from "./data/user";
+import { getUserByEmail } from "./app/api/users/data/user";
 
 const authConfig = {
   secret: process.env.NEXTAUTH_SECRET,

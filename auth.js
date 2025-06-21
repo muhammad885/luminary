@@ -1,7 +1,6 @@
 // auth.js
 import NextAuth from 'next-auth';
 import authConfig from './auth.config';
-import { DEFAULT_LOGIN_REDIRECT } from './routes';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
@@ -11,8 +10,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (account?.provider !== 'credentials') return true;
         if (!user?.id) return false;
 
-        // Debug: Log the API call
-        console.log('Calling user API for ID:', user.id);
         
         const apiUrl = new URL(`/api/users/${user.id}`, process.env.NEXTAUTH_URL).toString();
         
