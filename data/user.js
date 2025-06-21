@@ -3,7 +3,6 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/model/User';
 
 
-
 export const getUserByEmail = async (email) => {
   if (!email || typeof email !== 'string') {
     console.error('Invalid email parameter');
@@ -36,7 +35,7 @@ export const getUserById = async (id) => {
 
       await dbConnect()
   
-      const user = await User.findById(id);
+      const user = await User.findById(id).lean();
       return user;
     } catch (error) {
       return { 

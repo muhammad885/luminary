@@ -49,5 +49,10 @@ export const customerRoutes = [
   '/dashboard/settings',
 ];
 
-export const apiAuthPrefix = '/api/auth';
+export const apiAuthPrefix = [
+  '/api/auth',
+  '/api/users/*',
+  '/api/two-factor/*',
+];
+
 export const DEFAULT_LOGIN_REDIRECT = '/';
