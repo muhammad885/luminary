@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base layer variables */
 @layer base {
   :root {
     --radius: 0.625rem;
@@ -25,7 +26,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    /* Add missing custom variables if used in tailwind.config.js */
+    /* Custom values for extended Tailwind config */
     --chart-1: 210 100% 50%;
     --chart-2: 10 100% 70%;
     --chart-3: 40 100% 60%;
@@ -51,6 +52,7 @@
   }
 }
 
+/* Component-level utilities */
 @layer components {
   .custom-border {
     border: 1px solid hsl(var(--border));
@@ -75,7 +77,12 @@
 
   .data-table tr {
     border-bottom: 1px solid hsl(var(--border));
-    transition: color 150ms, background-color 150ms, border-color 150ms, fill 150ms, stroke 150ms;
+    transition:
+      color 150ms,
+      background-color 150ms,
+      border-color 150ms,
+      fill 150ms,
+      stroke 150ms;
   }
 
   .data-table tr:hover {
@@ -83,6 +90,7 @@
   }
 }
 
+/* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 0.5rem;
   height: 0.5rem;
