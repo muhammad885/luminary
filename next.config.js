@@ -1,19 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { isServer, dev }) => {
-    // Only handle CSS if you have custom requirements
+  webpack: (config) => {
     config.module.rules.push({
       test: /\.css$/i,
-      use: [
-        isServer ? require.resolve('style-loader') : 'style-loader',
-        {
-          loader: 'css-loader',
-          options: {
-            importLoaders: 1,
-          },
-        },
-        'postcss-loader'
-      ],
+      use: ['style-loader', 'css-loader', 'postcss-loader'],
     });
     return config;
   },
