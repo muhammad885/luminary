@@ -1,21 +1,26 @@
-// next.config.js
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config) => {
+  webpack: (config, { isServer, dev }) => {
+    if (!dev && !isServer) {
+      config.plugins.push(
+        new MiniCssExtractPlugin({
+          filename: 'static/css/[contenthash].css',
+          chunkFilename: 'static/css/[contenthash].css',
+        })
+      );
+    }
+
     config.module.rules.push({
       test: /\.css$/i,
       use: [
-        // Remove style-loader for production builds
-        process.env.NODE_ENV === 'development' ? 'style-loader' : MiniCssExtractPlugin.loader,
-        {
-          loader: 'css-loader',
-          options: {
-            importLoaders: 1,
-          },
-        },
-        'postcss-loader',
-      ],
+        !dev && !isServer ? MiniCssExtractPlugin.loader : 'style-loader',
+        'css-loader',
+        'postcss-loader'
+      ].filter(Boolean),
     });
+    
     return config;
   },
 };
