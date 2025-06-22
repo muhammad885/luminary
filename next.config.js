@@ -1,26 +1,20 @@
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config, { isServer, dev }) => {
-    if (!dev && !isServer) {
-      config.plugins.push(
-        new MiniCssExtractPlugin({
-          filename: 'static/css/[contenthash].css',
-          chunkFilename: 'static/css/[contenthash].css',
-        })
-      );
-    }
-
+    // Only handle CSS if you have custom requirements
     config.module.rules.push({
       test: /\.css$/i,
       use: [
-        !dev && !isServer ? MiniCssExtractPlugin.loader : 'style-loader',
-        'css-loader',
+        isServer ? require.resolve('style-loader') : 'style-loader',
+        {
+          loader: 'css-loader',
+          options: {
+            importLoaders: 1,
+          },
+        },
         'postcss-loader'
-      ].filter(Boolean),
+      ],
     });
-    
     return config;
   },
 };
