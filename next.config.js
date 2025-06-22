@@ -1,27 +1,19 @@
+// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone', // For Docker deployments
   webpack: (config) => {
     config.module.rules.push({
-      test: /\.css$/,
+      test: /\.css$/i,
       use: [
-        'style-loader',
+        // Remove style-loader for production builds
+        process.env.NODE_ENV === 'development' ? 'style-loader' : MiniCssExtractPlugin.loader,
         {
           loader: 'css-loader',
           options: {
-            url: false,
             importLoaders: 1,
-            modules: false,
           },
         },
-        {
-          loader: 'postcss-loader',
-          options: {
-            postcssOptions: {
-              config: true,
-            },
-          },
-        },
+        'postcss-loader',
       ],
     });
     return config;
