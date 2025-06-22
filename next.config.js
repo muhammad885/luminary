@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
+module.exports = {
+  // Let Next.js handle CSS by default
+  experimental: {
+    appDir: true,
   },
-};
-
-export default nextConfig;
+  
+  // Only add if you have specific needs
+  webpack: (config) => {
+    // Your custom webpack config here if needed
+    return config
+  }
+}

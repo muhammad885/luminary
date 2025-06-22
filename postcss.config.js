@@ -1,9 +1,18 @@
 module.exports = {
-  plugins: {
-    'postcss-import': {},  // Handles @import rules
-    'postcss-nested': {},  // Processes nested CSS
-    'tailwindcss': {},     // Tailwind CSS
-    'autoprefixer': {},    // Vendor prefixes
-    ...(process.env.NODE_ENV === 'production' ? { 'cssnano': {} } : {})  // Minification
-  }
+  plugins: [
+    require('postcss-import')(),
+    require('postcss-flexbugs-fixes'),
+    require('postcss-preset-env')({
+      autoprefixer: {
+        flexbox: 'no-2009',
+      },
+      stage: 3,
+    }),
+    require('postcss-nested')(),
+    require('tailwindcss')(),
+    require('autoprefixer')(),
+    ...(process.env.NODE_ENV === 'production'
+      ? [require('cssnano')({ preset: 'default' })]
+      : [])
+  ]
 }
