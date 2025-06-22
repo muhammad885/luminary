@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    /* Light mode variables */
     --radius: 0.625rem;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -27,7 +26,6 @@
   }
 
   .dark {
-    /* Dark mode variables */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -49,50 +47,68 @@
   }
 
   * {
-    @apply border-border; /* Uses the --border variable */
+    border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
 @layer components {
-  /* Custom border utilities */
   .custom-border {
-    @apply border border-border;
+    border: 1px solid hsl(var(--border));
   }
   
   .dark-border {
-    @apply dark:border-border;
+    @media (prefers-color-scheme: dark) {
+      border-color: hsl(var(--border));
+    }
   }
   
-  /* Table styles */
   .data-table {
-    @apply w-full caption-bottom text-sm;
+    width: 100%;
+    caption-side: bottom;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
   }
   
   .data-table th {
-    @apply h-12 px-4 text-left align-middle font-medium text-muted-foreground;
+    height: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    text-align: left;
+    vertical-align: middle;
+    font-weight: 500;
+    color: hsl(var(--muted-foreground));
   }
   
   .data-table tr {
-    @apply border-b border-border transition-colors hover:bg-muted/50;
+    border-bottom: 1px solid hsl(var(--border));
+    transition-property: color, background-color, border-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    
+    &:hover {
+      background-color: hsl(var(--muted) / 0.5);
+    }
   }
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
-  @apply w-2 h-2;
+  width: 0.5rem;
+  height: 0.5rem;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+  background-color: hsl(210, 24%, 90%);
+  border-radius: 9999px;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  @apply bg-gray-600;
+  background-color: hsl(217, 19%, 35%);
 }
