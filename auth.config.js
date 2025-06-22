@@ -43,6 +43,7 @@ const authConfig = {
             id: user._id?.toString(), // Ensure ID is string
             email: user.email,
             name: user.name,
+            role: user.role
             // Add other safe fields as needed
           };
 
