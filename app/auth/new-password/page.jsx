@@ -1,8 +1,7 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -47,51 +46,41 @@ export default function NewPasswordPage() {
   });
 
   useEffect(() => {
-    // Get token from URL after component mounts (client-side only)
-    const urlParams = new URLSearchParams(window.location.search);
-    const tokenParam = urlParams.get("token");
-    
-    if (!tokenParam) {
-      setInvalidToken(true);
-      toast.error("Invalid password reset link");
-    } else {
-      setToken(tokenParam);
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenParam = urlParams.get("token");
+      
+      if (!tokenParam) {
+        setInvalidToken(true);
+        toast.error("Invalid or expired password reset link");
+      } else {
+        setToken(tokenParam);
+      }
     }
   }, []);
 
   const onSubmit = async (values) => {
     if (!token) {
-      toast.error("Error", {
-        description: "Missing password reset token"
-      });
+      toast.error("Missing reset token");
       return;
     }
-  
+
     setIsSubmitting(true);
-  
+
     try {
-      const result = await newPassword(
-        token, 
-        {
-          password: values.password,
-          confirmPassword: values.confirmPassword
-        }
-      );
-  
-      if (result?.success) {
-        toast.success("Success", {
-          description: result.message || "Password updated successfully!"
-        });
-        setTimeout(() => router.push("/auth/login"), 2000);
-      } else {
-        toast.error("Error", {
-          description: result?.message || result?.error || "Failed to reset password"
-        });
-      }
-    } catch (err) {
-      toast.error("Error", {
-        description: "An unexpected error occurred"
+      const result = await newPassword(token, {
+        password: values.password,
+        confirmPassword: values.confirmPassword
       });
+
+      if (result?.success) {
+        toast.success("Password reset successful");
+        setTimeout(() => router.push("/auth/login"), 1500);
+      } else {
+        toast.error(result?.message || "Failed to reset password");
+      }
+    } catch {
+      toast.error("Unexpected error. Try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -99,30 +88,19 @@ export default function NewPasswordPage() {
 
   if (invalidToken) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader className="space-y-1">
-            <div className="flex justify-center mb-2">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={120}
-                height={60}
-                className="rounded-lg object-cover"
-              />
-            </div>
-            <CardTitle className="text-2xl font-bold text-center">Password Reset</CardTitle>
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+        <Card className="w-full max-w-md shadow-md">
+          <CardHeader className="text-center">
+            <Image src="/logo.png" alt="Logo" width={100} height={50} />
+            <CardTitle className="text-xl mt-2">Password Reset</CardTitle>
           </CardHeader>
           <CardContent className="text-center text-red-500">
-            Invalid or missing password reset token
+            Invalid or missing reset token.
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <Button asChild variant="link">
-              <Link href="/auth/login" className="flex items-center gap-1">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Login
-              </Link>
-            </Button>
+          <CardFooter className="justify-center">
+            <Link href="/auth/login" className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
+              <ArrowLeft className="w-4 h-4" /> Back to Login
+            </Link>
           </CardFooter>
         </Card>
       </div>
@@ -130,23 +108,13 @@ export default function NewPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
       <div className="w-full max-w-md">
-        <Card className="w-full shadow-lg">
-          <CardHeader className="space-y-1">
-            <div className="flex justify-center mb-2">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={120}
-                height={60}
-                className="rounded-lg object-cover"
-              />
-            </div>
-            <CardTitle className="text-2xl font-bold text-center">Reset Password</CardTitle>
-            <CardDescription className="text-center">
-              Enter a new password for your account
-            </CardDescription>
+        <Card className="shadow-md">
+          <CardHeader className="text-center space-y-1">
+            <Image src="/logo.png" alt="Logo" width={100} height={50} />
+            <CardTitle className="text-2xl font-semibold">Reset Password</CardTitle>
+            <CardDescription>Enter your new password below</CardDescription>
           </CardHeader>
           
           <CardContent>
@@ -171,18 +139,14 @@ export default function NewPasswordPage() {
                           className="absolute right-2 top-2.5 text-muted-foreground"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="confirmPassword"
@@ -193,7 +157,7 @@ export default function NewPasswordPage() {
                         <FormControl>
                           <Input
                             type={showConfirmPassword ? "text" : "password"}
-                            placeholder="Confirm new password"
+                            placeholder="Confirm password"
                             {...field}
                           />
                         </FormControl>
@@ -202,41 +166,30 @@ export default function NewPasswordPage() {
                           className="absolute right-2 top-2.5 text-muted-foreground"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         >
-                          {showConfirmPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
+                          {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
+
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Updating password...
-                    </>
-                  ) : "Reset Password"}
+                    <span className="flex items-center">
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </span>
+                  ) : 'Reset Password'}
                 </Button>
               </form>
             </Form>
           </CardContent>
 
-          <CardFooter className="flex justify-center">
-            <Button asChild variant="link" className="text-muted-foreground">
-              <Link href="/auth/login" className="flex items-center gap-1">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Login
-              </Link>
-            </Button>
+          <CardFooter className="justify-center">
+            <Link href="/auth/login" className="flex items-center gap-1 text-sm text-blue-600 hover:underline">
+              <ArrowLeft className="w-4 h-4" /> Back to Login
+            </Link>
           </CardFooter>
         </Card>
       </div>
