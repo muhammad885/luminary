@@ -35,7 +35,7 @@ export default function NewPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState(null);
   const [invalidToken, setInvalidToken] = useState(false);
 
   const form = useForm({
