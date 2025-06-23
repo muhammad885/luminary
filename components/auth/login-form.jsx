@@ -8,25 +8,39 @@ import { Eye, EyeOff, LogIn, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { loginSchema } from "@/schemas/authSchema";
 import Image from "next/image";
 import { login, resendTwoFactorCode } from "@/actions/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 export function LoginForm() {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const [callbackUrl, setCallbackUrl] = useState(DEFAULT_LOGIN_REDIRECT);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [email, setEmail] = useState("");
-  const [codeDigits, setCodeDigits] = useState(Array(6).fill(''));
+  const [codeDigits, setCodeDigits] = useState(Array(6).fill(""));
   const [isMounted, setIsMounted] = useState(false);
   const inputRefs = useRef([]);
 
@@ -41,6 +55,11 @@ export function LoginForm() {
 
   useEffect(() => {
     setIsMounted(true);
+
+    // Replace useSearchParams
+    const params = new URLSearchParams(window.location.search);
+    const cb = params.get("callbackUrl");
+    if (cb) setCallbackUrl(cb);
   }, []);
 
   useEffect(() => {
@@ -50,20 +69,20 @@ export function LoginForm() {
   }, [showTwoFactor, isMounted]);
 
   useEffect(() => {
-    if (codeDigits.every(digit => digit !== '') && codeDigits.length === 6 && isMounted) {
+    if (codeDigits.every((digit) => digit !== "") && codeDigits.length === 6 && isMounted) {
       onTwoFactorSubmit();
     }
   }, [codeDigits, isMounted]);
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData('text/plain').replace(/\D/g, '');
-    const digits = pasteData.split('').slice(0, 6);
+    const pasteData = e.clipboardData.getData("text/plain").replace(/\D/g, "");
+    const digits = pasteData.split("").slice(0, 6);
     if (digits.length === 6) {
       const newDigits = [...codeDigits];
-      digits.forEach((digit, index) => newDigits[index] = digit);
+      digits.forEach((digit, index) => (newDigits[index] = digit));
       setCodeDigits(newDigits);
-      form.setValue('code', newDigits.join(''));
+      form.setValue("code", newDigits.join(""));
       inputRefs.current[5]?.focus();
     }
   };
@@ -74,33 +93,30 @@ export function LoginForm() {
     newDigits[index] = value;
     setCodeDigits(newDigits);
     if (value && index < 5) inputRefs.current[index + 1]?.focus();
-    form.setValue('code', newDigits.join(''));
+    form.setValue("code", newDigits.join(""));
   };
 
   const handleCodeKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !codeDigits[index] && index > 0) {
+    if (e.key === "Backspace" && !codeDigits[index] && index > 0) {
       const newDigits = [...codeDigits];
-      newDigits[index - 1] = '';
+      newDigits[index - 1] = "";
       setCodeDigits(newDigits);
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const onSubmit = async (data) => {
-    const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_LOGIN_REDIRECT;
     setIsLoading(true);
-    
+
     try {
-      // First verify credentials with your custom login function
       const response = await login(data, callbackUrl);
-      
+
       if (response?.twoFactor) {
         setEmail(data.email);
         setShowTwoFactor(true);
       } else if (response?.error) {
         toast.error("Login Failed", { description: response.error });
       } else {
-        // If credentials are valid, proceed with NextAuth signIn
         const signInResult = await signIn("credentials", {
           email: data.email,
           password: data.password,
@@ -122,22 +138,23 @@ export function LoginForm() {
   };
 
   const onTwoFactorSubmit = async () => {
-    if (codeDigits.some(d => d === '')) return;
-    const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_LOGIN_REDIRECT;
+    if (codeDigits.some((d) => d === "")) return;
+
     setIsVerifying(true);
-    
+
     try {
-      // First verify 2FA code with your custom login function
-      const response = await login({
-        email,
-        password: form.getValues("password"),
-        code: codeDigits.join(''),
-      }, callbackUrl);
+      const response = await login(
+        {
+          email,
+          password: form.getValues("password"),
+          code: codeDigits.join(""),
+        },
+        callbackUrl
+      );
 
       if (response?.error) {
         toast.error("Verification Failed", { description: response.error });
       } else {
-        // If 2FA is valid, proceed with NextAuth signIn
         const signInResult = await signIn("credentials", {
           email,
           password: form.getValues("password"),
@@ -158,22 +175,12 @@ export function LoginForm() {
     }
   };
 
-  // Rest of your component remains the same...
-  if (!isMounted) {
-    return null;
-  }
+  if (!isMounted) return null;
 
   return (
     <Card className="w-full max-w-md shadow-lg mx-auto my-4">
       <CardHeader className="flex flex-col items-center px-6 pt-4 pb-4 space-y-2">
-        <Image 
-          src="/logo.png" 
-          alt="Logo" 
-          width={120} 
-          height={60} 
-          className="rounded-lg object-cover" 
-          priority 
-        />
+        <Image src="/logo.png" alt="Logo" width={120} height={60} className="rounded-lg object-cover" priority />
         <div className="text-center space-y-1">
           <CardTitle className="text-2xl font-bold">
             {showTwoFactor ? "Two-Factor Verification" : "Welcome Back"}
@@ -213,7 +220,7 @@ export function LoginForm() {
                 size="sm"
                 onClick={() => {
                   setShowTwoFactor(false);
-                  setCodeDigits(Array(6).fill(''));
+                  setCodeDigits(Array(6).fill(""));
                 }}
                 disabled={isVerifying || isResending}
               >
@@ -224,14 +231,16 @@ export function LoginForm() {
                 type="button"
                 size="sm"
                 onClick={onTwoFactorSubmit}
-                disabled={isVerifying || isResending || codeDigits.some(d => d === '')}
+                disabled={isVerifying || isResending || codeDigits.some((d) => d === "")}
               >
                 {isVerifying ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     Verifying...
                   </span>
-                ) : "Verify"}
+                ) : (
+                  "Verify"
+                )}
               </Button>
             </div>
 
@@ -246,11 +255,11 @@ export function LoginForm() {
                     const response = await resendTwoFactorCode(email);
                     if (response.success) {
                       toast.success("New code sent!");
-                      setCodeDigits(Array(6).fill(''));
-                      form.setValue('code', '');
+                      setCodeDigits(Array(6).fill(""));
+                      form.setValue("code", "");
                       inputRefs.current[0]?.focus();
                     }
-                  } catch (error) {
+                  } catch {
                     toast.error("Failed to resend code");
                   } finally {
                     setIsResending(false);
@@ -263,7 +272,9 @@ export function LoginForm() {
                     <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     Sending...
                   </span>
-                ) : "Resend code"}
+                ) : (
+                  "Resend code"
+                )}
               </button>
             </p>
           </div>
@@ -277,12 +288,12 @@ export function LoginForm() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="your.email@example.com" 
-                        type="email" 
-                        autoComplete="email" 
-                        {...field} 
-                        disabled={isLoading} 
+                      <Input
+                        placeholder="your.email@example.com"
+                        type="email"
+                        autoComplete="email"
+                        {...field}
+                        disabled={isLoading}
                       />
                     </FormControl>
                     <FormMessage />
@@ -326,10 +337,7 @@ export function LoginForm() {
               />
 
               <div className="flex items-center justify-end pb-2">
-                <Link 
-                  href="/auth/forgot-password" 
-                  className="text-sm font-medium text-primary hover:underline"
-                >
+                <Link href="/auth/forgot-password" className="text-sm font-medium text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -356,10 +364,7 @@ export function LoginForm() {
         <CardFooter className="flex justify-center px-6 pb-6 pt-0">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link 
-              href="/auth/register" 
-              className="text-primary font-medium hover:underline"
-            >
+            <Link href="/auth/register" className="text-primary font-medium hover:underline">
               Sign up
             </Link>
           </p>
