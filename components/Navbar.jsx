@@ -8,7 +8,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "@/hooks/useCart";
 import SearchDialog from "./SearchDialog";
 import Link from "next/link";
-import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 
 const Navbar = () => {
@@ -45,7 +44,7 @@ const Navbar = () => {
         <div className="container flex justify-between items-center">
           <div className="flex items-center ml-20 gap-4">
             <Link href="/" className="hover:scale-105 transition-all duration-300 cursor-pointer">
-              <Image 
+              <img 
                 src="/logo.png"
                 alt="Luminary Logo"
                 width={250}

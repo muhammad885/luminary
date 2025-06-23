@@ -14,7 +14,6 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { newPassword } from "@/actions/auth";
 import {
   Form,
@@ -91,7 +90,7 @@ export default function NewPasswordPage() {
       <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
         <Card className="w-full max-w-md shadow-md">
           <CardHeader className="text-center">
-            <Image src="/logo.png" alt="Logo" width={100} height={50} />
+            <img src="/logo.png" alt="Logo" width={100} height={50} />
             <CardTitle className="text-xl mt-2">Password Reset</CardTitle>
           </CardHeader>
           <CardContent className="text-center text-red-500">
@@ -112,7 +111,7 @@ export default function NewPasswordPage() {
       <div className="w-full max-w-md">
         <Card className="shadow-md">
           <CardHeader className="text-center space-y-1">
-            <Image src="/logo.png" alt="Logo" width={100} height={50} />
+            <img src="/logo.png" alt="Logo" width={100} height={50} />
             <CardTitle className="text-2xl font-semibold">Reset Password</CardTitle>
             <CardDescription>Enter your new password below</CardDescription>
           </CardHeader>

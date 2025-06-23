@@ -25,7 +25,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Image from "next/image";
 import { forgotPassword } from "@/actions/auth";
 
 export function ForgotPasswordForm() {
@@ -66,7 +65,7 @@ export function ForgotPasswordForm() {
   return (
     <Card className="w-full shadow-lg">
       <CardHeader className="space-y-4 flex flex-col items-center">
-        <Image
+        <img
           src="/logo.png"
           alt="Logo"
           width={120}

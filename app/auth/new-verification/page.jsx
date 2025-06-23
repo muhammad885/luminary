@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { VerificationAnimation } from "@/components/auth/verification-animation";
-import Image from "next/image";
 import { newVerification } from "@/actions/auth";
 
 export default function NewVerificationPage() {
@@ -59,7 +58,7 @@ export default function NewVerificationPage() {
                 <Card className="w-full shadow-lg">
                     <CardHeader className="space-y-1">
                         <div className="flex justify-center mb-2">
-                            <Image
+                            <img
                                 src="/logo.png"
                                 alt="Logo"
                                 width={120}

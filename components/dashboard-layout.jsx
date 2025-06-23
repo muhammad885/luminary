@@ -25,7 +25,6 @@ import {
   CurrencyIcon,
   SheetIcon, // Added Loader icon
 } from "lucide-react";
-import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -158,7 +157,7 @@ export default function DashboardLayout({ children }) {
             <div className="flex items-center justify-center border-b px-6 py-4">
               <Link href="/" className="flex items-center gap-2">
                 <div className="relative h-16 w-40">
-                  <Image
+                  <img
                     src="/logo.png"
                     alt="Luminary"
                     fill
@@ -193,7 +192,7 @@ export default function DashboardLayout({ children }) {
 
         <Link href="/" className="flex items-center gap-2">
           <div className="relative h-12 w-32 md:h-14 md:w-40 transition-all duration-300 hover:opacity-90">
-            <Image
+            <img
               src="/logo.png"
               alt="Luminary"
               fill
@@ -263,7 +262,7 @@ export default function DashboardLayout({ children }) {
                         <div className="flex items-center gap-3">
                           <div className="bg-gray-100 border rounded-md w-12 h-12 flex items-center justify-center">
                             {item.image ? (
-                              <Image 
+                              <img 
                                 src={item.image} 
                                 alt={item.name} 
                                 width={48} 
