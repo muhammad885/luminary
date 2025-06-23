@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,10 +32,11 @@ import Link from "next/link";
 export default function NewPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [token, setToken] = useState(null);
+  const [invalidToken, setInvalidToken] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(passwordResetSchema),
@@ -44,6 +45,16 @@ export default function NewPasswordPage() {
       confirmPassword: ""
     }
   });
+
+  useEffect(() => {
+    // Check for token only after component mounts (client-side)
+    const tokenParam = searchParams.get("token");
+    if (!tokenParam) {
+      setInvalidToken(true);
+      toast.error("Invalid password reset link");
+    }
+    setToken(tokenParam);
+  }, [searchParams]);
 
   const onSubmit = async (values) => {
     if (!token) {
@@ -83,8 +94,7 @@ export default function NewPasswordPage() {
     }
   };
 
-  if (!token) {
-    toast.error("Invalid password reset link");
+  if (invalidToken) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 p-4">
         <Card className="w-full max-w-md shadow-lg">
