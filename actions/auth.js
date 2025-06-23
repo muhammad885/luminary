@@ -5,7 +5,6 @@ import { loginSchema, passwordResetSchema, resetPasswordSchema, signUpSchema } f
 import dbConnect from '@/lib/mongodb';
 import User from '@/model/User';
 import { getUserByEmail } from '@/data/user';
-import { signIn } from '@/auth';
 import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
 import { AuthError } from 'next-auth';
 import { generatePasswordResetToken, generateTwoFactorToken, generateVerificationToken } from '@/data/tokens';
@@ -16,7 +15,7 @@ import { getPasswordResetTokenByToken, getTwoFactorConfirmationByUserId, getTwoF
 import ResetToken from '@/model/reset-password';
 import TwoFactorToken from '@/model/two-factor';
 import TwoFactorConfirmation from '@/model/two-factor-confirmation';
-import { redirect } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 
 export const resendTwoFactorCode = async (email) => {
@@ -78,11 +77,10 @@ export const register = async (values) => {
 };
 
 export const login = async (values, callbackUrl) => {
+  // Validate input fields
   const validatedFields = loginSchema.safeParse(values);
-
-
   if (!validatedFields.success) {
-    return { error: 'Invalid input data.' };
+    return { error: "Invalid input data." };
   }
 
   const { email, password, code } = validatedFields.data;
@@ -93,20 +91,20 @@ export const login = async (values, callbackUrl) => {
 
     // Validate user exists
     if (!existingUser?.email || !existingUser?.password) {
-      return { error: 'Invalid Credentials!' };
+      return { error: "Invalid credentials!" };
     }
 
     // Verify password
     const passwordsMatch = await bcrypt.compare(password, existingUser.password);
     if (!passwordsMatch) {
-      return { error: 'Invalid credentials!' };
+      return { error: "Invalid credentials!" };
     }
 
     // Check email verification
     if (!existingUser.isVerified) {
       const verificationToken = await generateVerificationToken(existingUser.email);
       await sendVerificationEmail(verificationToken.email, verificationToken.token);
-      return { error: 'Please verify your email first. A new verification link has been sent.' };
+      return { error: "Please verify your email first. A new verification link has been sent." };
     }
 
     // Handle 2FA if enabled
@@ -116,31 +114,30 @@ export const login = async (values, callbackUrl) => {
         const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
 
         if (!twoFactorToken) {
-          return { error: 'Invalid code!' };
+          return { error: "Invalid code!" };
         }
 
         if (twoFactorToken.token !== code) {
-          return { error: 'Invalid code!' };
+          return { error: "Invalid code!" };
         }
 
         const hasExpired = new Date(twoFactorToken.expires) < new Date();
         if (hasExpired) {
-          return { error: 'Code expired!' };
+          return { error: "Code expired!" };
         }
 
         // Clean up used token
-        await TwoFactorToken.findByIdAndDelete(twoFactorToken._id);
+        await TwoFactorToken.deleteOne({ _id: twoFactorToken._id });
 
         // Update confirmation
         const existingConfirmation = await getTwoFactorConfirmationByUserId(existingUser._id);
         if (existingConfirmation) {
-          await TwoFactorConfirmation.findByIdAndDelete(existingConfirmation._id);
+          await TwoFactorConfirmation.deleteOne({ _id: existingConfirmation._id });
         }
 
         await TwoFactorConfirmation.create({
           userId: existingUser._id
         });
-
       } else {
         // Generate and send new 2FA token if no code provided
         const twoFactorToken = await generateTwoFactorToken(existingUser.email);
@@ -153,214 +150,25 @@ export const login = async (values, callbackUrl) => {
       }
     }
 
-    // Proceed with regular login
-    const signInResult =  await signIn('credentials', {
-      email,
-      password,
-      redirect: false, // Let NextAuth handle redirect
-      callbackUrl: callbackUrl || '/dashboard' // Use provided callback or default
-    });
-
-    if (signInResult?.error) {
-      return { error: signInResult.error };
-    }
-
-    // If the sign-in is successful, handle the redirect manually
-    if (signInResult?.ok) {
-      return { redirect: DEFAULT_LOGIN_REDIRECT};  // Redirect to the dashboard or home page
-    }
+    // IMPORTANT FIX: Return the user object that matches what your Credentials provider expects
+    return {
+      success: true,
+      user: {
+        id: existingUser._id.toString(),
+        email: existingUser.email,
+        name: existingUser.name,
+        role: existingUser.role,
+        isVerified: existingUser.isVerified,
+        isTwoFactorEnabled: existingUser.isTwoFactorEnabled
+      },
+      redirect: callbackUrl || DEFAULT_LOGIN_REDIRECT
+    };
 
   } catch (error) {
-    if (error instanceof AuthError) {
-      return { error: 'Invalid credentials!' };
-    }
-    throw error;
+    console.error("Login error:", error);
+    return { error: "An error occurred during login. Please try again." };
   }
 };
-
-
-// Login Function
-// export const login = async (values) => {
-//   const validatedFields = loginSchema.safeParse(values);
-
-//   if (!validatedFields.success) {
-//     return { error: 'Invalid input data.' };
-//   }
-
-//   const { email, password, code } = validatedFields.data;
-
-//   try {
-//     await dbConnect();
-//     const existingUser = await getUserByEmail(email);
-
-//     // Validate user exists
-//     if (!existingUser?.email || !existingUser?.password) {
-//       return { error: 'Email does not exist!' };
-//     }
-
-//     // Verify password
-//     const passwordsMatch = await bcrypt.compare(password, existingUser.password);
-//     if (!passwordsMatch) {
-//       return { error: 'Invalid credentials!' };
-//     }
-
-//     // Check email verification
-//     if (!existingUser.isVerified) {
-//       const verificationToken = await generateVerificationToken(existingUser.email);
-//       await sendVerificationEmail(verificationToken.email, verificationToken.token);
-//       return { error: 'Please verify your email first. A new verification link has been sent.' };
-//     }
-
-//     // Handle 2FA if enabled
-//     if (existingUser.isTwoFactorEnabled) {
-//       if (code) {
-//         // Verify 2FA code
-//         const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
-
-        
-//         if (!twoFactorToken) {
-//           return { error: 'Invalid code!' };
-//         }
-
-//         if (twoFactorToken.token !== code) {
-//           return { error: 'Invalid code!' };
-//         }
-
-//         const hasExpired = new Date(twoFactorToken.expires) < new Date();
-//         if (hasExpired) {
-//           return { error: 'Code expired!' };
-//         }
-
-//         // Clean up used token
-//         await TwoFactorToken.findByIdAndDelete(twoFactorToken._id);
-
-//         // Update confirmation
-//         const existingConfirmation = await getTwoFactorConfirmationByUserId(existingUser._id);
-//         if (existingConfirmation) {
-//           await TwoFactorConfirmation.findByIdAndDelete(existingConfirmation._id);
-//         }
-
-//         await TwoFactorConfirmation.create({
-//           userId: existingUser._id
-//         });
-
-//       } else {
-//         // Generate and send new 2FA token if no code provided
-//         const twoFactorToken = await generateTwoFactorToken(existingUser.email);
-//         await sendTwoFactorEmail(twoFactorToken.email, twoFactorToken.token);
-        
-//         return { 
-//           twoFactor: true,
-//           email: existingUser.email
-//         };
-//       }
-//     }
-
-//     // Proceed with regular login
-//     const signInResult = await signIn('credentials', {
-//       email,
-//       password,
-//     });
-
-//     if (signInResult?.error) {
-//       return { error: signInResult.error };
-//     }
-
-//   } catch (error) {
-//     if (error instanceof AuthError) {
-//       return { error: 'Invalid credentials!' };
-//     }
-//     throw error
-//   }
-
-// };
-
-// export const login = async (values) => {
-//   const validatedFields = loginSchema.safeParse(values);
-
-//   if (!validatedFields.success) {
-//     return { error: 'Invalid input data.' };
-//   }
-
-//   const { email, password, code } = validatedFields.data;
-//   console.log(email, password, code);
-
-//   await dbConnect();
-//   const existingUser = await getUserByEmail(email);
-
-//   // Validate user exists
-//   if (!existingUser?.email || !existingUser?.password) {
-//     return { error: 'Email does not exist!' };
-//   }
-
-//   // Verify password
-//   const passwordsMatch = await bcrypt.compare(password, existingUser.password);
-//   if (!passwordsMatch) {
-//     return { error: 'Invalid credentials!' };
-//   }
-
-//   // Check email verification
-//   if (!existingUser.isVerified) {
-//     const verificationToken = await generateVerificationToken(existingUser.email);
-//     await sendVerificationEmail(verificationToken.email, verificationToken.token);
-//     return { error: 'Please verify your email first. A new verification link has been sent.' };
-//   }
-
-//   // Handle 2FA if enabled
-//   if (existingUser.isTwoFactorEnabled) {
-//     if (code) {
-//       // Verify 2FA code
-//       const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
-//       console.log(twoFactorToken);
-
-//       if (!twoFactorToken) {
-//         return { error: 'Invalid code!' };
-//       }
-
-//       if (twoFactorToken.token !== code) {
-//         return { error: 'Invalid code!' };
-//       }
-
-//       const hasExpired = new Date(twoFactorToken.expires) < new Date();
-//       if (hasExpired) {
-//         return { error: 'Code expired!' };
-//       }
-
-//       // Clean up used token
-//       await TwoFactorToken.findByIdAndDelete(twoFactorToken._id);
-
-//       // Update confirmation
-//       const existingConfirmation = await getTwoFactorConfirmationByUserId(existingUser._id);
-//       if (existingConfirmation) {
-//         await TwoFactorConfirmation.findByIdAndDelete(existingConfirmation._id);
-//       }
-
-//       await TwoFactorConfirmation.create({
-//         userId: existingUser._id
-//       });
-//     } else {
-//       // Generate and send new 2FA token if no code provided
-//       const twoFactorToken = await generateTwoFactorToken(existingUser.email);
-//       await sendTwoFactorEmail(twoFactorToken.email, twoFactorToken.token);
-      
-//       return { 
-//         twoFactor: true,
-//         email: existingUser.email
-//       };
-//     }
-//   }
-
-//   // Proceed with regular login
-//   const signInResult = await signIn('credentials', {
-//     email,
-//     password,
-//     redirectTo: DEFAULT_LOGIN_REDIRECT,
-//   });
-
-//   if (signInResult?.error) {
-//     return { error: signInResult.error };
-//   }
-// };
 
 export const newVerification = async (token) => {
   try {

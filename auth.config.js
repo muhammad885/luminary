@@ -2,74 +2,136 @@ import Credentials from "next-auth/providers/credentials";
 import { loginSchema } from "./schemas/authSchema";
 import { comparePasswords } from "./app/auth/password";
 
-const authConfig = {
+const isProduction = process.env.NODE_ENV === "production";
+const cookiePrefix = isProduction ? "__Secure-" : "";
+const cookieSecure = isProduction;
+
+export const authConfig = {
+  // Required secret - must be 32+ characters
   secret: process.env.NEXTAUTH_SECRET,
+
+  // Configure authentication providers
   providers: [
     Credentials({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
       async authorize(credentials) {
         try {
-          // 1. Validate input fields
           const validatedFields = loginSchema.safeParse(credentials);
           if (!validatedFields.success) {
             throw new Error("Invalid credentials format");
           }
 
           const { email, password } = validatedFields.data;
-
-          // 2. Fetch user from API
           const response = await fetch(
             `${process.env.NEXTAUTH_URL}/api/users?email=${email}`
           );
           
-          if (!response.ok) {
-            throw new Error("User lookup failed");
-          }
+          if (!response.ok) throw new Error("User lookup failed");
+
+          console.log(response)
 
           const user = await response.json();
+          if (!user?.password) throw new Error("Invalid user record");
 
-          // 3. Verify user exists and has password
-          if (!user?.password) {
-            throw new Error("Invalid user record");
-          }
-
-          // 4. Compare passwords
           const isValid = await comparePasswords(password, user.password);
-          if (!isValid) {
-            throw new Error("Invalid password");
-          }
+          if (!isValid) throw new Error("Invalid password");
 
-          // 5. Return sanitized user object
           return {
-            id: user._id?.toString(), // Ensure ID is string
+            id: user._id?.toString(),
             email: user.email,
             name: user.name,
-            role: user.role
-            // Add other safe fields as needed
+            role: user.role,
+            isVerified: user.isVerified,
+            isTwoFactorEnabled: user.isTwoFactorEnabled
           };
-
         } catch (error) {
-          console.error("Authorization error:", error.message);
+          console.error("Authorization error:", error.message || String(error));
           return null;
         }
       },
     }),
   ],
+
+  // Session configuration
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
+  },
+
+  // Cookie settings
+  cookies: {
+    sessionToken: {
+      name: `${cookiePrefix}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: cookieSecure,
+        domain: isProduction ? ".yourdomain.com" : undefined,
+      },
+    },
+    callbackUrl: {
+      name: `${cookiePrefix}next-auth.callback-url`,
+      options: {
+        sameSite: "lax",
+        path: "/",
+        secure: cookieSecure,
+      },
+    },
+    csrfToken: {
+      name: `${isProduction ? "__Host-" : ""}next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: cookieSecure,
+      },
+    },
+  },
+
+  // Callbacks
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.user = user;
+        token.id = user.id;
+        token.role = user.role;
+        token.isVerified = user.isVerified;
+        token.isTwoFactorEnabled = user.isTwoFactorEnabled;
       }
       return token;
     },
+
     async session({ session, token }) {
-      session.user = token.user;
+      session.user.id = token.id;
+      session.user.role = token.role;
+      session.user.isVerified = token.isVerified;
+      session.user.isTwoFactorEnabled = token.isTwoFactorEnabled;
       return session;
     },
   },
+
+  // Custom pages
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",
   },
-};
 
-export default authConfig;
+  // Debugging
+  debug: process.env.NODE_ENV === "development",
+  logger: {
+    error(code, metadata) {
+      console.error(code, metadata);
+    },
+    warn(code) {
+      console.warn(code);
+    },
+    debug(code, metadata) {
+      console.log(code, metadata);
+    }
+  },
+};

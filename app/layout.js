@@ -1,23 +1,21 @@
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
 import { Providers } from "./providers";
+import AuthProvider from "@/components/AuthProvider";
 
 export const metadata = {
   title: "Luminary Gifts Store",
   description: "Gifts Store Online Shopping",
 };
 
-export default async function RootLayout({ children }) {
-  const session = await auth();
+export default async function RootLayout({ children, session }) {
   return (
     <html lang="en">
       <body>
-        <SessionProvider session={session} key={session?.user?.id}>
+        <AuthProvider>
           <Providers>
             {children}
           </Providers>
-        </SessionProvider>
+        </AuthProvider>
       </body>
     </html>
   );

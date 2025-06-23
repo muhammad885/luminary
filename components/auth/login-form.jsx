@@ -15,6 +15,7 @@ import Image from "next/image";
 import { login, resendTwoFactorCode } from "@/actions/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export function LoginForm() {
   const searchParams = useSearchParams();
@@ -86,16 +87,33 @@ export function LoginForm() {
   };
 
   const onSubmit = async (data) => {
-    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+    const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_LOGIN_REDIRECT;
     setIsLoading(true);
+    
     try {
+      // First verify credentials with your custom login function
       const response = await login(data, callbackUrl);
-      console.log(response)
+      
       if (response?.twoFactor) {
         setEmail(data.email);
         setShowTwoFactor(true);
-      } else if (response?.error) toast.error("Login Failed", { description: response.error });
-      else router.push(DEFAULT_LOGIN_REDIRECT);
+      } else if (response?.error) {
+        toast.error("Login Failed", { description: response.error });
+      } else {
+        // If credentials are valid, proceed with NextAuth signIn
+        const signInResult = await signIn("credentials", {
+          email: data.email,
+          password: data.password,
+          redirect: false,
+          callbackUrl,
+        });
+
+        if (signInResult?.error) {
+          toast.error("Login Failed", { description: signInResult.error });
+        } else {
+          router.push(callbackUrl);
+        }
+      }
     } catch (error) {
       toast.error("Something went wrong", { description: "Please try again." });
     } finally {
@@ -105,16 +123,34 @@ export function LoginForm() {
 
   const onTwoFactorSubmit = async () => {
     if (codeDigits.some(d => d === '')) return;
-    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+    const callbackUrl = searchParams.get('callbackUrl') || DEFAULT_LOGIN_REDIRECT;
     setIsVerifying(true);
+    
     try {
+      // First verify 2FA code with your custom login function
       const response = await login({
         email,
         password: form.getValues("password"),
         code: codeDigits.join(''),
       }, callbackUrl);
-      if (response?.error) toast.error("Verification Failed", { description: response.error });
-      else router.push(DEFAULT_LOGIN_REDIRECT);
+
+      if (response?.error) {
+        toast.error("Verification Failed", { description: response.error });
+      } else {
+        // If 2FA is valid, proceed with NextAuth signIn
+        const signInResult = await signIn("credentials", {
+          email,
+          password: form.getValues("password"),
+          redirect: false,
+          callbackUrl,
+        });
+
+        if (signInResult?.error) {
+          toast.error("Login Failed", { description: signInResult.error });
+        } else {
+          router.push(callbackUrl);
+        }
+      }
     } catch (error) {
       toast.error("Something went wrong", { description: "Please try again." });
     } finally {
@@ -122,8 +158,9 @@ export function LoginForm() {
     }
   };
 
+  // Rest of your component remains the same...
   if (!isMounted) {
-    return null; // or return a loading skeleton
+    return null;
   }
 
   return (

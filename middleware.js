@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { getToken } from 'next-auth/jwt';
 import {
   publicRoutes,
   authRoutes,
@@ -10,7 +10,6 @@ import {
   customerRoutes,
 } from './routes';
 
-// Match routes (handles exact, wildcard *, and dynamic [id] routes)
 function matchRoute(pathname, routes) {
   return routes.some(route => {
     if (route === pathname) return true;
@@ -21,8 +20,8 @@ function matchRoute(pathname, routes) {
     }
 
     if (route.includes('[') && route.includes(']')) {
-      const routeParts = route.split('/');
-      const pathParts = pathname.split('/');
+      const routeParts = route.split('/').filter(Boolean);
+      const pathParts = pathname.split('/').filter(Boolean);
       if (routeParts.length !== pathParts.length) return false;
       return routeParts.every((part, i) =>
         part.startsWith('[') || part === pathParts[i]
@@ -33,81 +32,75 @@ function matchRoute(pathname, routes) {
   });
 }
 
-// Handle wildcard match for API auth prefix
-function matchesApiAuthPrefix(pathname) {
-  return apiAuthPrefix.some(prefix => {
-    if (prefix.endsWith('*')) {
-      return pathname.startsWith(prefix.slice(0, -1));
-    }
-    return pathname === prefix || pathname.startsWith(`${prefix}/`);
-  });
-}
-
 export default async function middleware(request) {
   const { nextUrl } = request;
   const { pathname, search } = nextUrl;
 
   try {
-    // ✅ Skip middleware for all API auth routes
-    if (matchesApiAuthPrefix(pathname)) {
+    // Skip middleware for API auth routes
+    if (apiAuthPrefix.some(prefix => pathname.startsWith(prefix))) {
       return NextResponse.next();
     }
 
-    // ⛔ Require session for protected routes
-    const session = await auth();
-    const isLoggedIn = !!session?.user;
-    const userRole = session?.user?.role;
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === "production",
+    });
 
+    const isLoggedIn = !!token;
+    const userRole = token?.role;
     const isPublicRoute = matchRoute(pathname, publicRoutes);
 
-    // ✅ Skip login page for authenticated users
-    if (authRoutes.includes(pathname)) {
+    // Handle /auth/* routes (e.g. login, register)
+    if (authRoutes.some(route => matchRoute(pathname, [route]))) {
       if (isLoggedIn) {
-        const callbackUrl = new URLSearchParams(search).get('callbackUrl') || DEFAULT_LOGIN_REDIRECT;
-        return NextResponse.redirect(new URL(callbackUrl, nextUrl));
+        const rawCallback = new URLSearchParams(search).get("callbackUrl");
+        const safeRedirect = rawCallback?.startsWith("/")
+          ? new URL(rawCallback, nextUrl.origin).toString()
+          : new URL(DEFAULT_LOGIN_REDIRECT, nextUrl.origin).toString();
+
+        return NextResponse.redirect(safeRedirect);
       }
       return NextResponse.next();
     }
 
-    // ⛔ Redirect guests from protected pages to login
+    // Redirect guests trying to access protected routes
     if (!isLoggedIn && !isPublicRoute) {
-      const callbackUrl = pathname + search;
-      return NextResponse.redirect(
-        new URL(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`, nextUrl)
-      );
+      const callbackPath = pathname + (search || "");
+      const loginUrl = new URL("/auth/login", nextUrl.origin);
+      loginUrl.searchParams.set("callbackUrl", callbackPath);
+      return NextResponse.redirect(loginUrl);
     }
 
-    // ✅ Role-based access check
-    const roleAccess = {
-      Admin: adminRoutes,
-      User: userRoutes,
-      Customer: customerRoutes,
-    };
+    // Role-based access restriction
+    if (isLoggedIn) {
+      const roleAccess = {
+        Admin: [...publicRoutes, ...adminRoutes],
+        User: [...publicRoutes, ...userRoutes],
+        Customer: [...publicRoutes, ...customerRoutes],
+      };
 
-    const allowedRoutes = roleAccess[userRole] || [];
-
-    const isRoleRestrictedRoute = [
-      ...adminRoutes,
-      ...userRoutes,
-      ...customerRoutes,
-    ];
-
-    if (matchRoute(pathname, isRoleRestrictedRoute)) {
-      if (!matchRoute(pathname, allowedRoutes)) {
-        return NextResponse.redirect(new URL('/dashboard', nextUrl));
+      const allProtectedRoutes = [...adminRoutes, ...userRoutes, ...customerRoutes];
+      if (matchRoute(pathname, allProtectedRoutes)) {
+        const allowedRoutes = roleAccess[userRole] || publicRoutes;
+        if (!matchRoute(pathname, allowedRoutes)) {
+          return NextResponse.redirect(new URL('/unauthorized', nextUrl.origin));
+        }
       }
     }
 
     return NextResponse.next();
   } catch (error) {
-    console.error('[Middleware Error]', error);
-    return NextResponse.redirect(new URL('/auth/error', nextUrl));
+    console.error('[MIDDLEWARE_ERROR]', error);
+    const errorUrl = new URL('/auth/error', nextUrl.origin);
+    errorUrl.searchParams.set('error', 'middleware_failure');
+    return NextResponse.redirect(errorUrl);
   }
 }
 
-// ✅ Matcher: skip static assets and image requests
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|_next/webpack-hmr).*)',
   ],
 };

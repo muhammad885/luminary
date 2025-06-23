@@ -1218,28 +1218,6 @@ const CheckoutPage = () => {
     </Button>
   );
 
-  // Main render
-  if (!session?.user) {
-    return (
-      <div className="min-h-screen bg-white flex flex-col">
-        <Navbar />
-        <main className="container mt-32 mb-20 flex-1 px-4 md:px-6 text-center py-16">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-            Authentication Required
-          </h2>
-          <p className="text-gray-500 mb-8">
-            Please sign in to proceed to checkout.
-          </p>
-          <Link href="/auth/signin">
-            <Button className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-white">
-              Sign In
-            </Button>
-          </Link>
-        </main>
-        <WhatsAppButton />
-      </div>
-    );
-  }
 
   const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
   const otherAddresses = savedAddresses.filter((addr) => !addr.isDefault);

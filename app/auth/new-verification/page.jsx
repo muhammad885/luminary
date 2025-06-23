@@ -38,7 +38,7 @@ export default function NewVerificationPage() {
                     setVerificationState("success");
                     // Redirect to login page after 3 seconds
                     setTimeout(() => {
-                        router.push("/login");
+                        router.push("/auth/login");
                     }, 5000);
                 } else {
                     setVerificationState("error");
@@ -88,7 +88,7 @@ export default function NewVerificationPage() {
                             </p>
                         )}
                         {verificationState === "error" && (
-                            <Button onClick={() => router.push("/login")}>Back to Login</Button>
+                            <Button onClick={() => router.push("/auth/login")}>Back to Login</Button>
                         )}
                     </CardFooter>
                 </Card>
