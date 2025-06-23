@@ -5,14 +5,30 @@ import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Command, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { products } from "@/data/products";
+import { getAllProductsGroupedByCategory } from "@/actions/products";
+
 
 const SearchDialog = ({ isOpen, onClose }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+
+  // Fetch products on component mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsData = await getAllProductsGroupedByCategory();
+        setAllProducts(productsData.all || []);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setAllProducts([]);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -28,12 +44,16 @@ const SearchDialog = ({ isOpen, onClose }) => {
     }
 
     const query = searchQuery.toLowerCase();
-    const filteredResults = products
-      .filter((product) => product.name.toLowerCase().includes(query))
+    const filteredResults = allProducts
+      .filter((product) => 
+        product.name.toLowerCase().includes(query) ||
+        product.description.toLowerCase().includes(query) ||
+        product.category.toLowerCase().includes(query)
+      )
       .slice(0, 5);
 
     setSearchResults(filteredResults);
-  }, [searchQuery]);
+  }, [searchQuery, allProducts]);
 
   const handleSelectProduct = (productId) => {
     router.push(`/product/${productId}`);
@@ -82,7 +102,7 @@ const SearchDialog = ({ isOpen, onClose }) => {
                         style: 'currency',
                         currency: 'NGN',
                         minimumFractionDigits: 0,
-                      }).format(product.discountPrice || product.price)}
+                      }).format(product.discountedPrice || product.price)}
                     </span>
                   </div>
                 </CommandItem>

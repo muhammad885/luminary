@@ -1,7 +1,6 @@
 // pages/api/paystack-webhook.js
 import crypto from 'crypto';
 import { verifyPaystackPayment } from '@/lib/payment'; // Adjust import path
-import Order from '@/models/Order'; // Adjust import path
 import dbConnect from '@/lib/dbConnect'; // Adjust import path
 
 export const config = {

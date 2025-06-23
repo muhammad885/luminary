@@ -8,6 +8,7 @@ const nextConfig = {
         pathname: '/api/portraits/**',
       },
     ],
+    unoptimized: true, // Disable next/image optimization (needed for Netlify compatibility)
   },
 };
 

@@ -51,6 +51,7 @@ export const customerRoutes = [
 
 export const apiAuthPrefix = [
   '/api/auth',
+  '/api/paystack/*',
   '/api/users/*',
   '/api/two-factor/*',
 ];
