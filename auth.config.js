@@ -27,7 +27,7 @@ export const authConfig = {
 
           const { email, password } = validatedFields.data;
           const response = await fetch(
-            `${process.env.NEXTAUTH_URL}/api/users?email=${email}`
+            `${process.env.BASE_URL}/api/users?email=${email}`
           );
           
           if (!response.ok) throw new Error("User lookup failed");
