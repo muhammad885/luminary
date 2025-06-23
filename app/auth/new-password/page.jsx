@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -31,11 +32,10 @@ import Link from "next/link";
 
 export default function NewPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState<string | null>(null);
   const [invalidToken, setInvalidToken] = useState(false);
 
   const form = useForm({
@@ -47,14 +47,17 @@ export default function NewPasswordPage() {
   });
 
   useEffect(() => {
-    // Check for token only after component mounts (client-side)
-    const tokenParam = searchParams.get("token");
+    // Get token from URL after component mounts (client-side only)
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenParam = urlParams.get("token");
+    
     if (!tokenParam) {
       setInvalidToken(true);
       toast.error("Invalid password reset link");
+    } else {
+      setToken(tokenParam);
     }
-    setToken(tokenParam);
-  }, [searchParams]);
+  }, []);
 
   const onSubmit = async (values) => {
     if (!token) {
