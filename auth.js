@@ -10,7 +10,7 @@ const config = {
         if (account?.provider !== "credentials") return true;
         if (!user?.id) return false;
         
-        const apiUrl = new URL(`/api/users/${user.id}`, process.env.BASE_URL).toString();
+        const apiUrl = new URL(`/api/users/${user.id}`, process.env.NEXT_PUBLIC_BASE_URL).toString();
         
         const userRes = await fetch(apiUrl, {
           headers: {
@@ -33,7 +33,7 @@ const config = {
         }
 
         if (existingUser.isTwoFactorEnabled) {
-          const twoFactorUrl = new URL(`/api/two-factor/${user.id}`, process.env.BASE_URL).toString();
+          const twoFactorUrl = new URL(`/api/two-factor/${user.id}`, process.env.NEXT_PUBLIC_BASE_URL).toString();
           const twoFactorRes = await fetch(twoFactorUrl);
           
           if (!twoFactorRes.ok) {
@@ -47,7 +47,7 @@ const config = {
             return false;
           }
 
-          const deleteUrl = new URL(`/api/two-factor/${confirmation._id}`, process.env.BASE_URL).toString();
+          const deleteUrl = new URL(`/api/two-factor/${confirmation._id}`, process.env.NEXT_PUBLIC_BASE_URL).toString();
           const deleteRes = await fetch(deleteUrl, { method: "DELETE" });
           
           if (!deleteRes.ok) {
@@ -76,7 +76,7 @@ const config = {
         }
 
         if (!token.role && token.sub) {
-          const res = await fetch(`${process.env.BASE_URL}/api/users/${token.sub}`);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${token.sub}`);
           if (res.ok) {
             const existingUser = await res.json();
             if (existingUser) {

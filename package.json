@@ -1,15 +1,15 @@
 {
   "name": "musa_pz",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
  "scripts": {
   "dev": "next dev",
   "build": "next build",
   "start": "next start",
-  "lint": "next lint",
-  "export": "next build && next export", 
+  "lint": "next lint", 
   "vercel-build": "npm install && next build", 
-  "netlify-build": "npm install && next build && next export", 
+  "netlify-build": "npm install && npm run build", 
   "preview": "next start --port $PORT", 
   "test": "echo \"Error: no test specified\" && exit 1" 
 },
