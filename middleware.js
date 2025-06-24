@@ -54,6 +54,15 @@ export default async function middleware(request) {
   const { pathname, search } = nextUrl;
   const searchParams = new URLSearchParams(search);
 
+   // Get token with secure cookie setting
+  const token = await getToken({
+  req: request,
+  secret: process.env.NEXTAUTH_SECRET,
+  secureCookie: true,
+});
+
+console.log("MIDDLEWARE TOKEN:", token);
+
   try {
     // Skip middleware for API auth routes and static files
     if (
@@ -64,14 +73,7 @@ export default async function middleware(request) {
       return NextResponse.next();
     }
 
-    // Get token with secure cookie setting
-  const token = await getToken({
-  req: request,
-  secret: process.env.NEXTAUTH_SECRET,
-  secureCookie: true,
-});
-
-console.log("MIDDLEWARE TOKEN:", token);
+   
 
     const isLoggedIn = !!token;
     const userRole = token?.role 

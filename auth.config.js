@@ -6,14 +6,14 @@ const isProduction = process.env.NODE_ENV === "production";
 
 export const authConfig = {
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // Critical for Netlify
+  trustHost: true, // ✅ Required for Netlify hosting
 
   providers: [
     Credentials({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         try {
@@ -21,10 +21,16 @@ export const authConfig = {
           if (!validatedFields.success) return null;
 
           const { email, password } = validatedFields.data;
+
+          // Use a base URL fallback for Netlify
+          const baseUrl = isProduction
+            ? "https://polite-blancmange-b543d4.netlify.app"
+            : "http://localhost:3000";
+
           const response = await fetch(
-            `${process.env.NEXTAUTH_URL}/api/users?email=${encodeURIComponent(email)}`
+            `${baseUrl}/api/users?email=${encodeURIComponent(email)}`
           );
-          
+
           if (!response.ok) return null;
 
           const user = await response.json();
@@ -39,7 +45,7 @@ export const authConfig = {
             name: user.name,
             role: user.role,
             isVerified: user.isVerified,
-            isTwoFactorEnabled: user.isTwoFactorEnabled
+            isTwoFactorEnabled: user.isTwoFactorEnabled,
           };
         } catch (error) {
           console.error("Authorization error:", error);
@@ -54,14 +60,15 @@ export const authConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
+  // ✅ Correct cookie name for secure Netlify sessions
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: `__Secure-next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: isProduction,
+        secure: true, // Always true in Netlify
       },
     },
   },
@@ -83,17 +90,16 @@ export const authConfig = {
         id: token.id,
         role: token.role,
         isVerified: token.isVerified,
-        isTwoFactorEnabled: token.isTwoFactorEnabled
+        isTwoFactorEnabled: token.isTwoFactorEnabled,
       };
       return session;
     },
 
     async redirect({ url, baseUrl }) {
-      // Handle all redirect cases
       if (url.startsWith(baseUrl)) return url;
       if (url.startsWith("/")) return new URL(url, baseUrl).toString();
       return baseUrl;
-    }
+    },
   },
 
   pages: {
@@ -101,5 +107,5 @@ export const authConfig = {
     error: "/auth/error",
   },
 
-  debug: process.env.NODE_ENV === "development",
+  debug: !isProduction,
 };
