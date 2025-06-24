@@ -8,6 +8,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { useCart } from "@/hooks/useCart";
 import { useState, useEffect } from "react";
 import { getProductById } from "@/actions/products";
+import Image from "next/image";
 
 const CartPage = () => {
   const {

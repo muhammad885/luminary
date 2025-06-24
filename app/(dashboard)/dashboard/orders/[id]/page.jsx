@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/select";
 import { getOrderAndShippingById, updateOrderStatusWithTracking } from "@/actions/order";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 export default function OrderDetailsPage() {
   const params = useParams();

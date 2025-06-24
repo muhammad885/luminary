@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { forgotPassword } from "@/actions/auth";
+import Image from "next/image";
 
 export function ForgotPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -65,8 +66,8 @@ export function ForgotPasswordForm() {
   return (
     <Card className="w-full shadow-lg">
       <CardHeader className="space-y-4 flex flex-col items-center">
-        <img
-          src="/logo.png"
+        <Image
+          src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx"
           alt="Logo"
           width={120}
           height={60}

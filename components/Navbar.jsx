@@ -9,6 +9,7 @@ import { useCart } from "@/hooks/useCart";
 import SearchDialog from "./SearchDialog";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -44,8 +45,8 @@ const Navbar = () => {
         <div className="container flex justify-between items-center">
           <div className="flex items-center ml-20 gap-4">
             <Link href="/" className="hover:scale-105 transition-all duration-300 cursor-pointer">
-              <img 
-                src="/logo.png"
+              <Image 
+                src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx"
                 alt="Luminary Logo"
                 width={250}
                 height={100}

@@ -1,25 +1,31 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { 
-  CalendarIcon, 
-  Eye, 
-  MoreHorizontal, 
+import {
+  CalendarIcon,
+  Eye,
+  MoreHorizontal,
   Search,
   ChevronLeft,
   ChevronRight,
   X,
   CheckCircle,
-  Loader2
+  Loader2,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -37,12 +43,33 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { getAllOrders, updateOrderStatusWithTracking, verifyPaystackPayment } from "@/actions/order";
+import {
+  getAllOrders,
+  updateOrderStatusWithTracking,
+  verifyPaystackPayment,
+} from "@/actions/order";
 import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton component
 
 export default function OrdersPage() {
@@ -57,7 +84,7 @@ export default function OrdersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [actionInProgress, setActionInProgress] = useState(null);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  
+
   // States for verification dialog
   const [verifyDialogOpen, setVerifyDialogOpen] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
@@ -91,7 +118,7 @@ export default function OrdersPage() {
           limit: itemsPerPage,
           search: debouncedSearchTerm,
           status: statusFilter,
-          date: date ? formatDateForAPI(date) : ""
+          date: date ? formatDateForAPI(date) : "",
         });
 
         if (result.success) {
@@ -116,29 +143,42 @@ export default function OrdersPage() {
 
   const formatDisplayDate = (dateStr) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", { 
-      year: "numeric", 
-      month: "short", 
-      day: "numeric" 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   const handleUpdateStatus = async (id, newStatus, email) => {
     try {
       setActionInProgress(id);
-      
+
       const result = await updateOrderStatusWithTracking(id, newStatus, email);
-      
+
       if (result.success) {
-        setOrders(orders.map(order => 
-          order._id === id ? { 
-            ...order, 
-            status: newStatus,
-            ...(newStatus === 'processing' && { isPaid: true, paidAt: new Date() }),
-            ...(newStatus === 'delivered' && { isDelivered: true, deliveredAt: new Date() }),
-            ...(newStatus === 'cancelled' && { isCancelled: true, cancelledAt: new Date() })
-          } : order
-        ));
+        setOrders(
+          orders.map((order) =>
+            order._id === id
+              ? {
+                  ...order,
+                  status: newStatus,
+                  ...(newStatus === "processing" && {
+                    isPaid: true,
+                    paidAt: new Date(),
+                  }),
+                  ...(newStatus === "delivered" && {
+                    isDelivered: true,
+                    deliveredAt: new Date(),
+                  }),
+                  ...(newStatus === "cancelled" && {
+                    isCancelled: true,
+                    cancelledAt: new Date(),
+                  }),
+                }
+              : order
+          )
+        );
         toast.success(`Order status updated to ${newStatus}`);
       } else {
         toast.error(result.message);
@@ -172,12 +212,15 @@ export default function OrdersPage() {
       toast.error("Please enter a valid transaction ID");
       return;
     }
-    
+
     try {
       setVerifying(true);
-      
-      const result = await verifyPaystackPayment(currentOrder._id, transactionIdInput);
-      
+
+      const result = await verifyPaystackPayment(
+        currentOrder._id,
+        transactionIdInput
+      );
+
       if (result.success) {
         // Refetch orders to get updated data
         const refetchResult = await getAllOrders({
@@ -185,7 +228,7 @@ export default function OrdersPage() {
           limit: itemsPerPage,
           search: debouncedSearchTerm,
           status: statusFilter,
-          date: date ? formatDateForAPI(date) : ""
+          date: date ? formatDateForAPI(date) : "",
         });
 
         if (refetchResult.success) {
@@ -198,7 +241,8 @@ export default function OrdersPage() {
         closeVerificationDialog();
       } else {
         toast.error("Payment verification failed", {
-          description: result.error || result.message || "Could not verify transaction",
+          description:
+            result.error || result.message || "Could not verify transaction",
         });
       }
     } catch (error) {
@@ -213,25 +257,29 @@ export default function OrdersPage() {
   // Status options
   const getAvailableStatusOptions = (currentStatus) => {
     switch (currentStatus) {
-      case 'pending':
+      case "pending":
         return []; // No status options for pending orders
-      case 'processing':
+      case "processing":
         return [
-          { value: 'shipped', label: 'Mark as Shipped' },
-          { value: 'cancelled', label: 'Cancel Order', destructive: true }
+          { value: "shipped", label: "Mark as Shipped" },
+          { value: "cancelled", label: "Cancel Order", destructive: true },
         ];
-      case 'shipped':
+      case "shipped":
         return [
-          { value: 'delivered', label: 'Mark as Delivered' },
-          { value: 'cancelled', label: 'Cancel Order', destructive: true }
+          { value: "delivered", label: "Mark as Delivered" },
+          { value: "cancelled", label: "Cancel Order", destructive: true },
         ];
-      case 'delivered':
+      case "delivered":
         return [
-          { value: 'refunded', label: 'Process Refund', destructive: true }
+          { value: "refunded", label: "Process Refund", destructive: true },
         ];
-      case 'cancelled':
+      case "cancelled":
         return [
-          { value: 'processing', label: 'Mark as Processing', destructive: true }
+          {
+            value: "processing",
+            label: "Mark as Processing",
+            destructive: true,
+          },
         ];
       default:
         return [];
@@ -255,7 +303,7 @@ export default function OrdersPage() {
   };
 
   // Calculate column span based on whether we're showing tracking info
-  const columnSpan = statusFilter === 'pending' ? 8 : 9;
+  const columnSpan = statusFilter === "pending" ? 8 : 9;
 
   // Skeleton rows for loading state
   const renderSkeletonRows = () => {
@@ -264,7 +312,7 @@ export default function OrdersPage() {
         <TableCell>
           <Skeleton className="h-4 w-4" />
         </TableCell>
-        {statusFilter !== 'pending' && (
+        {statusFilter !== "pending" && (
           <TableCell>
             <Skeleton className="h-4 w-24" />
           </TableCell>
@@ -311,10 +359,12 @@ export default function OrdersPage() {
               Verify payment for order #{currentOrder?.orderId}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
-              <Label htmlFor="transactionId">Transaction ID (Paystack Reference)</Label>
+              <Label htmlFor="transactionId">
+                Transaction ID (Paystack Reference)
+              </Label>
               <Input
                 id="transactionId"
                 value={transactionIdInput}
@@ -326,16 +376,16 @@ export default function OrdersPage() {
                 Enter the Paystack transaction reference ID to verify payment
               </p>
             </div>
-            
+
             <div className="flex justify-end gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={closeVerificationDialog}
                 disabled={verifying}
               >
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleVerifyPayment}
                 disabled={!transactionIdInput || verifying}
               >
@@ -352,19 +402,20 @@ export default function OrdersPage() {
           </div>
         </DialogContent>
       </Dialog>
-      
+
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Order Management</CardTitle>
           <CardDescription>
-            View and manage all customer orders. Search by Order ID, Tracking ID, or customer details.
+            View and manage all customer orders. Search by Order ID, Tracking
+            ID, or customer details.
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
           <div className="mb-4 flex flex-col gap-4 md:flex-row">
             <div className="relative flex-1">
@@ -377,19 +428,22 @@ export default function OrdersPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
+
             <div className="flex gap-2">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className={cn("w-[240px] justify-start text-left font-normal", !date && "text-muted-foreground")}
+                    className={cn(
+                      "w-[240px] justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date ? (
                       <div className="flex items-center">
                         {formatDisplayDate(formatDateForAPI(date))}
-                        <X 
+                        <X
                           className="ml-2 h-4 w-4 text-muted-foreground hover:text-foreground"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -397,19 +451,21 @@ export default function OrdersPage() {
                           }}
                         />
                       </div>
-                    ) : "Filter by date"}
+                    ) : (
+                      "Filter by date"
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar 
-                    mode="single" 
-                    selected={date} 
-                    onSelect={setDate} 
-                    initialFocus 
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
-              
+
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Filter by status" />
@@ -424,24 +480,21 @@ export default function OrdersPage() {
                   <SelectItem value="refunded">Refunded</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               {(date || statusFilter !== "all" || searchTerm) && (
-                <Button
-                  variant="ghost"
-                  onClick={handleResetFilters}
-                >
+                <Button variant="ghost" onClick={handleResetFilters}>
                   Reset All
                 </Button>
               )}
             </div>
           </div>
-          
+
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>S/N</TableHead>
-                  {statusFilter !== 'pending' && (
+                  {statusFilter !== "pending" && (
                     <TableHead>Tracking ID</TableHead>
                   )}
                   <TableHead>Transaction ID</TableHead>
@@ -449,41 +502,50 @@ export default function OrdersPage() {
                   <TableHead className="hidden md:table-cell">Date</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden md:table-cell">Items</TableHead>
+                  <TableHead className="text-right">Payment Status</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              
+
               <TableBody>
                 {loading ? (
                   renderSkeletonRows()
                 ) : orders.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={columnSpan} className="h-24 text-center">
+                    <TableCell
+                      colSpan={columnSpan}
+                      className="h-24 text-center"
+                    >
                       No orders found. Try adjusting your filters.
                     </TableCell>
                   </TableRow>
                 ) : (
                   orders.map((order, key) => (
-                    <TableRow 
-                      key={order._id} 
-                      className={actionInProgress === order._id ? "opacity-60" : ""}
+                    <TableRow
+                      key={order._id}
+                      className={
+                        actionInProgress === order._id ? "opacity-60" : ""
+                      }
                     >
-                       <TableCell className="font-mono text-sm">
-                          {key + 1}.
-                        </TableCell>
-                      {statusFilter !== 'pending' && (
+                      <TableCell className="font-mono text-sm">
+                        {key + 1}.
+                      </TableCell>
+                      {statusFilter !== "pending" && (
                         <TableCell className="font-mono text-sm">
                           {order.trackingId || "N/A"}
                         </TableCell>
                       )}
                       <TableCell className="font-mono text-sm">
-                          {order.transactionId || "N/A"}
-                        </TableCell>
+                        {order.transactionId || "N/A"}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={order.customer?.image} alt={order.customer?.name} />
+                            <AvatarImage
+                              src={order.customer?.image}
+                              alt={order.customer?.name}
+                            />
                             <AvatarFallback>
                               {order.customer?.name
                                 ?.split(" ")
@@ -508,28 +570,38 @@ export default function OrdersPage() {
                             order.status === "delivered"
                               ? "default"
                               : order.status === "processing"
-                                ? "outline"
-                                : order.status === "shipped"
-                                  ? "secondary"
-                                  : "destructive"
+                              ? "outline"
+                              : order.status === "shipped"
+                              ? "secondary"
+                              : "destructive"
                           }
                         >
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          {order.status.charAt(0).toUpperCase() +
+                            order.status.slice(1)}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
                         {order.items || 0} item(s)
                       </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={order.isPaid ? "default" : "destructive"}
+                        >
+                          {order.isPaid ? "Paid" : "Pending"}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-right">
-                       {order.formattedTotal}
+                        {order.formattedTotal}
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              disabled={actionInProgress === order._id || verifying}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={
+                                actionInProgress === order._id || verifying
+                              }
                             >
                               {actionInProgress === order._id ? (
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -546,33 +618,50 @@ export default function OrdersPage() {
                                 <Eye className="mr-2 h-4 w-4" /> View Details
                               </Link>
                             </DropdownMenuItem>
-                            
+
                             {/* Verify Payment option for pending orders */}
-                            {order.status === 'pending' && (
-                              <DropdownMenuItem
-                                onClick={() => openVerificationDialog(order)}
-                              >
-                                <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
-                                Verify Payment
-                              </DropdownMenuItem>
-                            )}
-                            
+                            {(order.status === "pending" || order.status === "processing") &&
+                              (!order.isPaid && (
+                                <DropdownMenuItem
+                                  onClick={() => openVerificationDialog(order)}
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                                  Verify Payment
+                                </DropdownMenuItem>
+                              ))}
+
                             {/* Status update options */}
-                            {getAvailableStatusOptions(order.status).length > 0 && (
-                              <>
-                                <DropdownMenuLabel>Update Status</DropdownMenuLabel>
-                                {getAvailableStatusOptions(order.status).map((option) => (
-                                  <DropdownMenuItem
-                                    key={option.value}
-                                    onClick={() => handleUpdateStatus(order?._id, option?.value, order?.shippingAddress.email)}
-                                    disabled={actionInProgress !== null}
-                                    className={option.destructive ? 'text-destructive focus:text-destructive' : ''}
-                                  >
-                                    {option.label}
-                                  </DropdownMenuItem>
-                                ))}
-                              </>
-                            )}
+                            {order.isPaid &&
+                              getAvailableStatusOptions(order.status).length >
+                                0 && (
+                                <>
+                                  <DropdownMenuLabel>
+                                    Update Status
+                                  </DropdownMenuLabel>
+                                  {getAvailableStatusOptions(order.status).map(
+                                    (option) => (
+                                      <DropdownMenuItem
+                                        key={option.value}
+                                        onClick={() =>
+                                          handleUpdateStatus(
+                                            order?._id,
+                                            option?.value,
+                                            order?.shippingAddress.email
+                                          )
+                                        }
+                                        disabled={actionInProgress !== null}
+                                        className={
+                                          option.destructive
+                                            ? "text-destructive focus:text-destructive"
+                                            : ""
+                                        }
+                                      >
+                                        {option.label}
+                                      </DropdownMenuItem>
+                                    )
+                                  )}
+                                </>
+                              )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -599,7 +688,9 @@ export default function OrdersPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                onClick={() =>
+                  handlePageChange(Math.min(totalPages, currentPage + 1))
+                }
                 disabled={currentPage === totalPages}
               >
                 <ChevronRight className="h-4 w-4" />

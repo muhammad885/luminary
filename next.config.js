@@ -7,8 +7,12 @@ const nextConfig = {
         hostname: 'randomuser.me',
         pathname: '/api/portraits/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/djr7uqara/**', // Fixed pathname
+      },
     ],
-    unoptimized: true, // Disable next/image optimization (needed for Netlify compatibility)
   },
 };
 

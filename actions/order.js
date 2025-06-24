@@ -124,6 +124,8 @@ export const verifyPaystackPayment = async (orderId, reference) => {
       await session.abortTransaction();
       return { success: false, message: "Order not found" };
     }
+
+    console.log(orderId)
     
     if (order.isPaid) {
       await session.abortTransaction();
@@ -135,7 +137,7 @@ export const verifyPaystackPayment = async (orderId, reference) => {
       `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY}`,
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
         },
       }
     );
@@ -521,6 +523,7 @@ export const getAllOrders = async ({
         formattedTotal: formatNaira(order.totalPrice),
         items: (order.orderItems || []).reduce((sum, item) => sum + (item.quantity || 0), 0),
         products: productNames,
+        isPaid: order.isPaid,
         payment: order.paymentMethod || "Unknown",
         shippingAddress: order.shippingAddress || null
       };

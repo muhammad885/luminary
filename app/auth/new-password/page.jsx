@@ -90,7 +90,7 @@ export default function NewPasswordPage() {
       <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
         <Card className="w-full max-w-md shadow-md">
           <CardHeader className="text-center">
-            <img src="/logo.png" alt="Logo" width={100} height={50} />
+            <img src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx" alt="Logo" width={100} height={50} />
             <CardTitle className="text-xl mt-2">Password Reset</CardTitle>
           </CardHeader>
           <CardContent className="text-center text-red-500">
@@ -111,10 +111,19 @@ export default function NewPasswordPage() {
       <div className="w-full max-w-md">
         <Card className="shadow-md">
           <CardHeader className="text-center space-y-1">
-            <img src="/logo.png" alt="Logo" width={100} height={50} />
-            <CardTitle className="text-2xl font-semibold">Reset Password</CardTitle>
-            <CardDescription>Enter your new password below</CardDescription>
-          </CardHeader>
+  <div className="flex justify-center">
+    <img
+      src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx"
+      alt="Logo"
+      width={100}
+      height={50}
+      className="mx-auto"
+    />
+  </div>
+  <CardTitle className="text-2xl font-semibold">Reset Password</CardTitle>
+  <CardDescription>Enter your new password below</CardDescription>
+</CardHeader>
+
           
           <CardContent>
             <Form {...form}>

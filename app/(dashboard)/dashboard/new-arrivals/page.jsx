@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { getProductsByDateRange, sendNewArrivalsNotification } from "@/actions/products";
+import Image from "next/image";
 
 // Helper function to format prices in Naira
 const formatPrice = (price) => {

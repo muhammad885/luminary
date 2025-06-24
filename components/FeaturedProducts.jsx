@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/hooks/useCart";
 import { getAllProductsGroupedByCategory } from "@/actions/products";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('en-NG', {
@@ -140,7 +141,7 @@ const FeaturedProducts = () => {
                     </button>
                     
                     <div className="relative overflow-hidden rounded-lg mb-4 h-60 w-full">
-                      <img
+                      <Image
                         src={product.image}
                         alt={product.name}
                         className="w-full h-full object-contain transform transition-transform duration-500 group-hover:scale-105"

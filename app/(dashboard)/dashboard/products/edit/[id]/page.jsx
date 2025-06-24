@@ -30,6 +30,7 @@ import { toast } from "sonner";
 import { getProductById, updateProduct } from "@/actions/products";
 import { getAllCategories } from "@/actions/categories";
 import { Checkbox } from "@/components/ui/checkbox";
+import Image from "next/image";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -435,7 +436,7 @@ export default function EditProductPage({ params }) {
                   <div className="flex flex-col items-center gap-4">
                     <div className="relative group">
                       <div className="relative w-64 h-64 rounded-md overflow-hidden border flex justify-center items-center">
-                        <img 
+                        <img
                           src={productImage?.startsWith('data:image') ? productImage : `data:image/jpeg;base64,${productImage}`}
                           alt="Product preview"
                           className="max-w-full max-h-full object-contain bg-muted"

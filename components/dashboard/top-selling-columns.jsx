@@ -1,5 +1,6 @@
 // components/dashboard/top-selling-columns.jsx
 import { formatNaira } from '@/lib/utils';
+import Image from 'next/image';
 
 export const TopSellingColumns = [
   {
@@ -8,7 +9,7 @@ export const TopSellingColumns = [
     cell: ({ row }) => (
       <div className="flex items-center gap-3">
         {row.original.image ? (
-          <img 
+          <Image 
             src={row.original.image} 
             alt={row.original.name} 
             className="w-10 h-10 rounded-md object-cover"

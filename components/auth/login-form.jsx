@@ -29,6 +29,7 @@ import { login, resendTwoFactorCode } from "@/actions/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
 
 export function LoginForm() {
   const router = useRouter();
@@ -179,7 +180,7 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md shadow-lg mx-auto my-4">
       <CardHeader className="flex flex-col items-center px-6 pt-4 pb-4 space-y-2">
-        <img src="/logo.png" alt="Logo" width={120} height={60} className="rounded-lg object-cover" priority />
+        <Image src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx" alt="Logo" width={120} height={60} className="rounded-lg object-cover" priority />
         <div className="text-center space-y-1">
           <CardTitle className="text-2xl font-bold">
             {showTwoFactor ? "Two-Factor Verification" : "Welcome Back"}

@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { VerificationAnimation } from "@/components/auth/verification-animation";
 import { newVerification } from "@/actions/auth";
+import Image from "next/image";
 
 export default function NewVerificationPage() {
     const router = useRouter();
@@ -58,8 +59,8 @@ export default function NewVerificationPage() {
                 <Card className="w-full shadow-lg">
                     <CardHeader className="space-y-1">
                         <div className="flex justify-center mb-2">
-                            <img
-                                src="/logo.png"
+                            <Image
+                               src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx"
                                 alt="Logo"
                                 width={120}
                                 height={60}

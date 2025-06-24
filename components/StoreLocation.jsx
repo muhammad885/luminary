@@ -26,7 +26,7 @@ const StoreLocation = () => {
             Visit Our Store
           </h2>
           <p className="text-gray-600 text-lg leading-relaxed">
-            Experience the elegance of Luminary Gift Store in person. Our curated collection awaits your discovery.
+            Experience the elegance of Luminary Gifts Store in person. Our curated collection awaits your discovery.
           </p>
         </motion.div>
         
@@ -83,7 +83,7 @@ const StoreLocation = () => {
                   <div>
                     <h3 className="font-playfair text-2xl text-gray-800 mb-3">Contact Us</h3>
                     <p className="text-[#D4AF37] text-lg">+234 123 456 7890</p>
-                    <p className="text-gray-500 mt-2">info@luminarygifts.com</p>
+                    <p className="text-gray-500 mt-2">luminarygiftstore@gmail.com</p>
                   </div>
                 </div>
 

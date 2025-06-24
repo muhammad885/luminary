@@ -44,12 +44,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/hooks/useCart";
+import Image from "next/image";
 
 // Currency formatting function
 const formatNaira = (amount) => {
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
@@ -60,11 +61,11 @@ export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
+
   // State for loading indicators
   const [isNavigatingToCart, setIsNavigatingToCart] = useState(false);
   const [isNavigatingToCheckout, setIsNavigatingToCheckout] = useState(false);
-  
+
   // Use cart context
   const {
     cartItems,
@@ -72,7 +73,7 @@ export default function DashboardLayout({ children }) {
     clearCart,
     getTotalPrice,
     getTotalItems,
-    getEffectivePrice
+    getEffectivePrice,
   } = useCart();
 
   const { data: session } = useSession();
@@ -84,14 +85,13 @@ export default function DashboardLayout({ children }) {
     }
   }, [pathname, isMobile]);
 
-
   const adminNavItems = [
     { title: "Dashboard", href: "/dashboard", icon: Home, exact: true },
     { title: "Categories", href: "/dashboard/categories", icon: Tag },
-    { title: "Products", href: "/dashboard/products", icon: Package },  
-    { title: "Delivery Cost", href: "/dashboard/delivery", icon: TruckIcon },  
-    { title: "Orders", href: "/dashboard/orders", icon: ShoppingCart},
-    { title: "Profit", href: "/dashboard/profit", icon: CurrencyIcon},
+    { title: "Products", href: "/dashboard/products", icon: Package },
+    { title: "Delivery Cost", href: "/dashboard/delivery", icon: TruckIcon },
+    { title: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
+    { title: "Profit", href: "/dashboard/profit", icon: CurrencyIcon },
     { title: "Customers", href: "/dashboard/users", icon: User },
     { title: "New Arrivals", href: "/dashboard/new-arrivals", icon: SheetIcon },
     { title: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -110,9 +110,11 @@ export default function DashboardLayout({ children }) {
   ];
 
   const navItems =
-    userRole === "Admin" ? adminNavItems : 
-    userRole === "User" ? userNavItems : 
-    customerNavItems;
+    userRole === "Admin"
+      ? adminNavItems
+      : userRole === "User"
+      ? userNavItems
+      : customerNavItems;
 
   const isNavItemActive = (item) => {
     if (item.exact) {
@@ -148,24 +150,28 @@ export default function DashboardLayout({ children }) {
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
         <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+            <Button
+              variant="outline"
+              size="icon"
+              className="shrink-0 md:hidden"
+            >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex flex-col p-0">
             <div className="flex items-center justify-center border-b px-6 py-4">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="relative h-16 w-40">
-                  <img
-                    src="/logo.png"
-                    alt="Luminary"
-                    fill
-                    className="object-contain transition-transform hover:scale-105"
-                    priority
-                  />
-                </div>
-              </Link>
+             <Link href="/" className="flex items-center gap-2">
+  <Image
+    src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx"
+    alt="Company Logo"
+    width={160}
+    height={64}
+    className="rounded-lg object-contain"
+    priority
+  />
+</Link>
+
             </div>
             <nav className="grid gap-2 p-4">
               {navItems.map((item, index) => (
@@ -174,7 +180,9 @@ export default function DashboardLayout({ children }) {
                   href={item.href}
                   className={cn(
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                    isNavItemActive(item) ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                    isNavItemActive(item)
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
                   )}
                 >
                   <item.icon className="h-4 w-4" />
@@ -192,14 +200,17 @@ export default function DashboardLayout({ children }) {
 
         <Link href="/" className="flex items-center gap-2">
           <div className="relative h-12 w-32 md:h-14 md:w-40 transition-all duration-300 hover:opacity-90">
-            <img
-              src="/logo.png"
-              alt="Luminary"
-              fill
-              className="object-contain"
-              priority
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
+           <div className="relative w-[120px] h-[60px] mx-auto">
+  <Image
+    src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx"
+    alt="Luminary"
+    fill
+    className="object-contain"
+    priority
+    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  />
+</div>
+
           </div>
           <div className="hidden md:block ml-[-50px]">
             <h1 className="text-2xl font-serif font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] via-[#F5D68E] to-[#D4AF37]">
@@ -208,11 +219,11 @@ export default function DashboardLayout({ children }) {
             <p className="text-sm">CURATED LUXURY GIFTS</p>
           </div>
         </Link>
-        
+
         <div className="flex-1"></div>
 
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="flex items-center px-3 py-2 rounded-md transition-all duration-200 bg-amber-800 hover:bg-amber-700 text-amber-50 text-sm cursor-pointer"
         >
           <span className="md:hidden">Shop</span>
@@ -224,7 +235,11 @@ export default function DashboardLayout({ children }) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative cursor-pointer">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative cursor-pointer"
+            >
               <ShoppingCart className="h-5 w-5" />
               <span className="sr-only">Shopping cart</span>
               {getTotalItems() > 0 && (
@@ -237,11 +252,13 @@ export default function DashboardLayout({ children }) {
           <DropdownMenuContent align="end" className="w-96 p-4">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Cart ({getTotalItems()})</h3>
+                <h3 className="text-lg font-semibold">
+                  Cart ({getTotalItems()})
+                </h3>
                 {cartItems.length > 0 && (
-                  <Button 
-                    variant="link" 
-                    size="sm" 
+                  <Button
+                    variant="link"
+                    size="sm"
                     onClick={handleClearCartWithToast}
                     className="text-destructive cursor-pointer"
                   >
@@ -249,7 +266,7 @@ export default function DashboardLayout({ children }) {
                   </Button>
                 )}
               </div>
-              
+
               {cartItems.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
                   Your cart is empty
@@ -258,15 +275,18 @@ export default function DashboardLayout({ children }) {
                 <>
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between gap-4">
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-4"
+                      >
                         <div className="flex items-center gap-3">
                           <div className="bg-gray-100 border rounded-md w-12 h-12 flex items-center justify-center">
                             {item.image ? (
-                              <img 
-                                src={item.image} 
-                                alt={item.name} 
-                                width={48} 
-                                height={48} 
+                              <Image
+                                src={item.image}
+                                alt={item.name}
+                                width={48}
+                                height={48}
                                 className="object-cover rounded-md"
                               />
                             ) : (
@@ -276,17 +296,20 @@ export default function DashboardLayout({ children }) {
                           <div>
                             <h4 className="font-medium">{item.name}</h4>
                             <p className="text-sm text-muted-foreground">
-                              {formatNaira(getEffectivePrice(item))} × {item.quantity}
+                              {formatNaira(getEffectivePrice(item))} ×{" "}
+                              {item.quantity}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">
-                            {formatNaira(getEffectivePrice(item) * item.quantity)}
+                            {formatNaira(
+                              getEffectivePrice(item) * item.quantity
+                            )}
                           </span>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="text-destructive hover:text-destructive/90 cursor-pointer"
                             onClick={() => removeFromCart(item.id)}
                           >
@@ -296,7 +319,7 @@ export default function DashboardLayout({ children }) {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="flex justify-between pt-2 border-t">
                       <span>Subtotal</span>
@@ -304,9 +327,9 @@ export default function DashboardLayout({ children }) {
                         {formatNaira(getTotalPrice())}
                       </span>
                     </div>
-                    
+
                     {/* View Cart Button with Loader */}
-                    <Button 
+                    <Button
                       className="w-full cursor-pointer"
                       onClick={handleNavigateToCart}
                       disabled={isNavigatingToCart}
@@ -316,12 +339,14 @@ export default function DashboardLayout({ children }) {
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Loading...
                         </>
-                      ) : "View Cart"}
+                      ) : (
+                        "View Cart"
+                      )}
                     </Button>
-                    
+
                     {/* Checkout Button with Loader */}
-                    <Button 
-                      className="w-full cursor-pointer" 
+                    <Button
+                      className="w-full cursor-pointer"
                       variant="secondary"
                       onClick={handleNavigateToCheckout}
                       disabled={isNavigatingToCheckout}
@@ -331,7 +356,9 @@ export default function DashboardLayout({ children }) {
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Loading...
                         </>
-                      ) : "Checkout"}
+                      ) : (
+                        "Checkout"
+                      )}
                     </Button>
                   </div>
                 </>
@@ -342,9 +369,16 @@ export default function DashboardLayout({ children }) {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full cursor-pointer">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full cursor-pointer"
+            >
               <Avatar className="h-8 w-8">
-                <AvatarImage src={session?.user?.image || "/placeholder-user.jpg"} alt="User" />
+                <AvatarImage
+                  src={session?.user?.image || "/placeholder-user.jpg"}
+                  alt="User"
+                />
                 <AvatarFallback>{userRole?.charAt(0)}</AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
@@ -379,7 +413,9 @@ export default function DashboardLayout({ children }) {
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors cursor-pointer",
-                  isNavItemActive(item) ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                  isNavItemActive(item)
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
                 )}
               >
                 <item.icon className="h-4 w-4" />

@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Command, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { getAllProductsGroupedByCategory } from "@/actions/products";
+import Image from "next/image";
 
 
 const SearchDialog = ({ isOpen, onClose }) => {
@@ -87,7 +88,7 @@ const SearchDialog = ({ isOpen, onClose }) => {
                   className="flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-[#D4AF37]/10 transition-colors"
                 >
                   <div className="h-12 w-12 rounded overflow-hidden flex-shrink-0 border border-[#D4AF37]/20">
-                    <img 
+                    <Image 
                       src={product.image} 
                       alt={product.name} 
                       className="h-full w-full object-cover"

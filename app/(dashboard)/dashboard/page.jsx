@@ -28,6 +28,7 @@ import SalesChart from '@/components/dashboard/sales-chart';
 import CustomerChart from '@/components/dashboard/customer-chart';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();

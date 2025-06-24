@@ -15,7 +15,6 @@ import { getPasswordResetTokenByToken, getTwoFactorConfirmationByUserId, getTwoF
 import ResetToken from '@/model/reset-password';
 import TwoFactorToken from '@/model/two-factor';
 import TwoFactorConfirmation from '@/model/two-factor-confirmation';
-import { signIn } from 'next-auth/react';
 
 
 export const resendTwoFactorCode = async (email) => {
