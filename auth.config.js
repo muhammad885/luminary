@@ -2,10 +2,6 @@ import Credentials from "next-auth/providers/credentials";
 import { loginSchema } from "./schemas/authSchema";
 import { comparePasswords } from "./app/auth/password";
 
-const isProduction = process.env.NODE_ENV === "production";
-const siteUrl = new URL(process.env.NEXTAUTH_URL);
-const cookieDomain = isProduction ? siteUrl.hostname : undefined;
-
 export const authConfig = {
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true, // Critical for Netlify
@@ -20,22 +16,20 @@ export const authConfig = {
       async authorize(credentials) {
         try {
           const validatedFields = loginSchema.safeParse(credentials);
-          if (!validatedFields.success) {
-            throw new Error("Invalid credentials format");
-          }
+          if (!validatedFields.success) return null;
 
           const { email, password } = validatedFields.data;
           const response = await fetch(
-            `${process.env.NEXTAUTH_URL}/api/users?email=${email}`
+            `${process.env.NEXTAUTH_URL}/api/users?email=${encodeURIComponent(email)}`
           );
           
-          if (!response.ok) throw new Error("User lookup failed");
+          if (!response.ok) return null;
 
           const user = await response.json();
-          if (!user?.password) throw new Error("Invalid user record");
+          if (!user?.password) return null;
 
           const isValid = await comparePasswords(password, user.password);
-          if (!isValid) throw new Error("Invalid password");
+          if (!isValid) return null;
 
           return {
             id: user._id?.toString(),
@@ -46,7 +40,7 @@ export const authConfig = {
             isTwoFactorEnabled: user.isTwoFactorEnabled
           };
         } catch (error) {
-          console.error("Authorization error:", error.message || String(error));
+          console.error("Authorization error:", error);
           return null;
         }
       },
@@ -56,7 +50,6 @@ export const authConfig = {
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
   },
 
   cookies: {
@@ -66,28 +59,7 @@ export const authConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: isProduction,
-        domain: cookieDomain,
-      },
-    },
-    callbackUrl: {
-      name: `next-auth.callback-url`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: isProduction,
-        domain: cookieDomain,
-      },
-    },
-    csrfToken: {
-      name: `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: isProduction,
-        domain: cookieDomain,
+        secure: process.env.NODE_ENV === "production",
       },
     },
   },
@@ -104,16 +76,21 @@ export const authConfig = {
     },
 
     async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.role = token.role;
-      session.user.isVerified = token.isVerified;
-      session.user.isTwoFactorEnabled = token.isTwoFactorEnabled;
+      session.user = {
+        ...session.user,
+        id: token.id,
+        role: token.role,
+        isVerified: token.isVerified,
+        isTwoFactorEnabled: token.isTwoFactorEnabled
+      };
       return session;
     },
 
     async redirect({ url, baseUrl }) {
-      // Fix for Netlify URL resolution
-      return url.startsWith(baseUrl) ? url : baseUrl;
+      // Handle all redirect cases
+      if (url.startsWith(baseUrl)) return url;
+      if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+      return baseUrl;
     }
   },
 
@@ -122,4 +99,5 @@ export const authConfig = {
     error: "/auth/error",
   },
 
+  debug: process.env.NODE_ENV === "development",
 };
