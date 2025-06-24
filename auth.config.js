@@ -3,15 +3,13 @@ import { loginSchema } from "./schemas/authSchema";
 import { comparePasswords } from "./app/auth/password";
 
 const isProduction = process.env.NODE_ENV === "production";
-const cookiePrefix = isProduction ? "__Secure-" : "";
-const cookieSecure = isProduction;
+const siteUrl = new URL(process.env.NEXTAUTH_URL);
+const cookieDomain = isProduction ? siteUrl.hostname : undefined;
 
 export const authConfig = {
-  // Required secret - must be 32+ characters
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // Required for Netlify
+  trustHost: true, // Critical for Netlify
 
-  // Configure authentication providers
   providers: [
     Credentials({
       name: "credentials",
@@ -32,8 +30,6 @@ export const authConfig = {
           );
           
           if (!response.ok) throw new Error("User lookup failed");
-
-          console.log(response)
 
           const user = await response.json();
           if (!user?.password) throw new Error("Invalid user record");
@@ -57,45 +53,45 @@ export const authConfig = {
     }),
   ],
 
-  // Session configuration
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // 24 hours
   },
 
-  // Cookie settings
   cookies: {
     sessionToken: {
-      name: `${cookiePrefix}next-auth.session-token`,
+      name: `next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: cookieSecure,
-        domain: isProduction ? ".yourdomain.com" : undefined,
+        secure: isProduction,
+        domain: cookieDomain,
       },
     },
     callbackUrl: {
-      name: `${cookiePrefix}next-auth.callback-url`,
-      options: {
-        sameSite: "lax",
-        path: "/",
-        secure: cookieSecure,
-      },
-    },
-    csrfToken: {
-      name: `${isProduction ? "__Host-" : ""}next-auth.csrf-token`,
+      name: `next-auth.callback-url`,
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: cookieSecure,
+        secure: isProduction,
+        domain: cookieDomain,
+      },
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: isProduction,
+        domain: cookieDomain,
       },
     },
   },
 
-  // Callbacks
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -114,25 +110,16 @@ export const authConfig = {
       session.user.isTwoFactorEnabled = token.isTwoFactorEnabled;
       return session;
     },
+
+    async redirect({ url, baseUrl }) {
+      // Fix for Netlify URL resolution
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    }
   },
 
-  // Custom pages
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",
   },
 
-  // Debugging
-  debug: process.env.NODE_ENV === "development",
-  logger: {
-    error(code, metadata) {
-      console.error(code, metadata);
-    },
-    warn(code) {
-      console.warn(code);
-    },
-    debug(code, metadata) {
-      console.log(code, metadata);
-    }
-  },
 };
