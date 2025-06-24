@@ -68,8 +68,10 @@ export default async function middleware(request) {
   const token = await getToken({
   req: request,
   secret: process.env.NEXTAUTH_SECRET,
-  secureCookie: process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production",
+  secureCookie: true,
 });
+
+console.log("MIDDLEWARE TOKEN:", token);
 
     const isLoggedIn = !!token;
     const userRole = token?.role 
