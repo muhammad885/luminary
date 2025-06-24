@@ -2,6 +2,8 @@ import Credentials from "next-auth/providers/credentials";
 import { loginSchema } from "./schemas/authSchema";
 import { comparePasswords } from "./app/auth/password";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export const authConfig = {
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true, // Critical for Netlify
@@ -59,7 +61,7 @@ export const authConfig = {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: isProduction,
       },
     },
   },
