@@ -9,6 +9,7 @@ const cookieSecure = isProduction;
 export const authConfig = {
   // Required secret - must be 32+ characters
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, // Required for Netlify
 
   // Configure authentication providers
   providers: [
