@@ -542,10 +542,15 @@ export async function getProductsByDateRange(startDate, endDate) {
   await dbConnect();
 
   try {
-    // Create proper date objects from UTC strings
+    // Create proper date objects with UTC time
     const start = new Date(startDate);
-    const end = new Date(endDate);
+    start.setUTCHours(0, 0, 0, 0);
     
+    const end = new Date(endDate);
+    end.setUTCHours(23, 59, 59, 999);
+
+    console.log('Querying between:', start.toISOString(), 'and', end.toISOString());
+
     const products = await Products.find({
       isActive: true,
       createdAt: { 
@@ -560,18 +565,25 @@ export async function getProductsByDateRange(startDate, endDate) {
     .sort({ createdAt: -1 })
     .lean();
 
-    // Filter out products that don't have an active category
-    const validProducts = products.filter(product => 
-      product.category && product.category.status === 'Active'
-    );
+    console.log('Raw products from DB:', products);
 
-    // Serialize and return
+    // Filter out products that don't have an active category
+    const validProducts = products.filter(product => {
+      const isValid = product.category && product.category.status === 'Active';
+      if (!isValid) {
+        console.log('Filtered out product:', product._id, 'due to category issue');
+      }
+      return isValid;
+    });
+
+    console.log('Valid products after filtering:', validProducts);
+
     return validProducts.map(product => ({
       id: product._id.toString(),
       name: product.name,
       description: product.description,
       price: product.price,
-      formattedPrice: formatPrice(product.price), // Add formatted price
+      formattedPrice: formatPrice(product.price),
       image: product.image || "/placeholder.png",
       category: product.category.name,
       createdAt: product.createdAt,
