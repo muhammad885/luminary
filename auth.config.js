@@ -57,7 +57,7 @@ export const authConfig = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 3 * 60 * 60 // 3 hours × 60 minutes × 60 seconds
   },
 
   // ✅ Correct cookie name for secure Netlify sessions

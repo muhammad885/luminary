@@ -17,8 +17,7 @@ const Navbar = () => {
   const pathname = usePathname();
   const { cartItems } = useCart();
   const [searchOpen, setSearchOpen] = useState(false);
-  const { data: session, status} = useSession();
-
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -41,104 +40,109 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black shadow-lg py-3">
-        <div className="container flex justify-between items-center">
-          <div className="flex items-center ml-20 gap-4">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black shadow-lg py-3 px-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          {/* Logo and brand - always on left */}
+          <div className="flex items-center gap-2 md:gap-4">
             <Link href="/" className="hover:scale-105 transition-all duration-300 cursor-pointer">
               <Image 
                 src="https://res.cloudinary.com/djr7uqara/image/upload/f_auto,q_auto/xtanzam7aw0f7tdfwxlx"
                 alt="Luminary Logo"
-                width={250}
-                height={100}
-                className="h-10 w-auto"
+                width={120}
+                height={40}
+                className="h-8 w-auto md:h-10"
+                priority
               />
             </Link>
-            <div className="hidden md:block">
-              <h1 className="text-2xl font-serif font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] via-[#F5D68E] to-[#D4AF37]">
+            <div className="hidden sm:block">
+              <h1 className="text-lg md:text-2xl font-serif font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#D4AF37] via-[#F5D68E] to-[#D4AF37]">
                 Luminary Gifts Store
               </h1>
-              <p className="text-xs text-white/80 tracking-widest">CURATED LUXURY GIFTS</p>
+              <p className="hidden md:block text-xs text-white/80 tracking-widest">CURATED LUXURY GIFTS</p>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-2">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-2 ml-8">
             <Link 
               href="/" 
-              className="px-4 py-2 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer"
+              className="px-4 py-2 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer text-sm"
             >
               Home
             </Link>
             <Link 
               href="/#products" 
-              className="px-4 py-2 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer"
+              className="px-4 py-2 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer text-sm"
             >
               Products
             </Link>
             <Link 
               href="/#testimonials" 
-              className="px-4 py-2 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer"
+              className="px-4 py-2 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer text-sm"
             >
               Testimonials
             </Link>
             <Link 
               href="/#contact" 
-              className="px-4 py-2 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer"
+              className="px-4 py-2 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer text-sm"
             >
               Contact
             </Link>
           </nav>
 
-          <div className="flex items-center space-x-4">
+          {/* Right side icons and buttons */}
+          <div className="flex items-center gap-2 md:gap-4">
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 cursor-pointer backdrop-blur-sm rounded-full"
+              className="text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 cursor-pointer rounded-full h-9 w-9"
               onClick={() => setSearchOpen(true)}
             >
-              <Search className="h-5 w-5" />
+              <Search className="h-4 w-4 md:h-5 md:w-5" />
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 relative cursor-pointer backdrop-blur-sm rounded-full"
+              className="text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 relative cursor-pointer rounded-full h-9 w-9"
               onClick={() => router.push("/cart")}
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
               {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#D4AF37] text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transition-transform duration-300 hover:scale-110">
+                <span className="absolute -top-1 -right-1 bg-[#D4AF37] text-black text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
                   {cartItems.length}
                 </span>
               )}
             </Button>
 
             {status === "authenticated" ? (
-              <div className="hidden md:flex items-center space-x-4">
+              <div className="hidden md:flex items-center gap-2">
                 <Link href="/dashboard">
                   <Button
                     variant="ghost"
-                    size="icon"
-                    className="text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 cursor-pointer backdrop-blur-sm rounded-full"
+                    size="sm"
+                    className="text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 cursor-pointer rounded-full gap-1"
                   >
-                    <User className="h-5 w-5" />
+                    <User className="h-4 w-4" />
+                    <span className="text-sm">Account</span>
                   </Button>
                 </Link>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-white border-white hover:text-[#D4AF37] bg-white/10  cursor-pointer rounded-full"
+                  className="text-white border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] cursor-pointer rounded-full text-sm"
                   onClick={handleLogout}
                 >
                   Logout
                 </Button>
               </div>
             ) : status === "unauthenticated" ? (
-              <div className="hidden md:flex items-center space-x-2">
+              <div className="hidden md:flex items-center gap-2">
                 <Link href="/auth/login">
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 cursor-pointer rounded-full backdrop-blur-sm"
+                    className="text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all duration-300 cursor-pointer rounded-full text-sm"
                   >
                     Login
                   </Button>
@@ -147,7 +151,7 @@ const Navbar = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="border-white text-[#D4AF37] hover:border-[#D4AF37] hover:bg-white/10 hover:text-white transition-all duration-300 cursor-pointer rounded-full backdrop-blur-sm"
+                    className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all duration-300 cursor-pointer rounded-full text-sm"
                   >
                     Register
                   </Button>
@@ -155,10 +159,11 @@ const Navbar = () => {
               </div>
             ) : null}
 
+            {/* Mobile menu button */}
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 cursor-pointer backdrop-blur-sm rounded-full"
+              className="md:hidden text-white hover:text-[#D4AF37] hover:bg-white/10 transition-all duration-300 cursor-pointer rounded-full h-9 w-9"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
@@ -167,21 +172,14 @@ const Navbar = () => {
           </div>
         </div>
 
+        {/* Mobile menu */}
         <div
           className={cn(
-            "fixed inset-0 bg-black/90 backdrop-blur-lg z-40 transition-all duration-500 transform pt-20",
+            "fixed inset-0 bg-black/95 z-40 transition-all duration-300 pt-16",
             mobileMenuOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
           )}
         >
-          <button
-            onClick={closeMobileMenu}
-            className="absolute top-4 right-4 p-2 text-white hover:text-[#D4AF37] transition-all duration-300"
-            aria-label="Close menu"
-          >
-            <X className="h-6 w-6" />
-          </button>
-
-          <nav className="flex flex-col items-center gap-4 p-8">
+          <nav className="flex flex-col items-center gap-4 p-6">
             <Link
               href="/"
               className="w-full text-center px-4 py-3 rounded-md bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-all duration-300 cursor-pointer"
@@ -211,17 +209,19 @@ const Navbar = () => {
               Contact
             </Link>
 
+            <div className="w-full border-t border-[#D4AF37]/30 my-3"></div>
+
             {status === "authenticated" ? (
-              <div className="flex flex-col items-center space-y-4 mt-4 w-full">
+              <div className="flex flex-col items-center gap-4 w-full">
                 <Link href="/dashboard" className="w-full" onClick={closeMobileMenu}>
                   <Button
-                    className="w-full bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-colors cursor-pointer"
+                    className="w-full bg-white text-black hover:bg-[#F5D68E] transition-colors cursor-pointer"
                   >
                     Dashboard
                   </Button>
                 </Link>
                 <Button
-                  className="w-full bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-colors cursor-pointer"
+                  className="w-full bg-white text-black hover:bg-[#F5D68E] transition-colors cursor-pointer"
                   onClick={() => {
                     handleLogout();
                     closeMobileMenu();
@@ -231,16 +231,16 @@ const Navbar = () => {
                 </Button>
               </div>
             ) : status === "unauthenticated" ? (
-              <div className="flex flex-col space-y-4 w-full mt-4">
+              <div className="flex flex-col gap-4 w-full">
                 <Link href="/auth/login" className="w-full" onClick={closeMobileMenu}>
                   <Button
-                    className="w-full bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-colors cursor-pointer"
+                    className="w-full bg-white text-black hover:bg-[#F5D68E] transition-colors cursor-pointer"
                   >
                     Login
                   </Button>
                 </Link>
                 <Link href="/auth/register" className="w-full" onClick={closeMobileMenu}>
-                  <Button className="w-full bg-[#D4AF37] text-white hover:bg-[#F5D68E] transition-colors cursor-pointer">
+                  <Button className="w-full bg-white text-black hover:bg-[#F5D68E] transition-colors cursor-pointer">
                     Register
                   </Button>
                 </Link>
