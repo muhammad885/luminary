@@ -10,6 +10,7 @@ import SearchDialog from "./SearchDialog";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -23,16 +24,15 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  const handleLogout = async () => {
-    try {
-      await signOut({
-        callbackUrl: '/',
-        redirect: true
-      });
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
+ const handleLogout = async () => {
+  try {
+    await signOut({ redirect: false }); // No need for callbackUrl here
+    window.location.replace('/'); // Hard redirect handles the destination
+  } catch (error) {
+    toast.error('Logout failed:', error)
+    // Optional: Show error to user (toast, etc.)
+  }
+};
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
@@ -130,7 +130,7 @@ const Navbar = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-white border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] cursor-pointer rounded-full text-sm"
+                  className="bg-white text-black border-[#D4AF37] hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] cursor-pointer rounded-full text-sm"
                   onClick={handleLogout}
                 >
                   Logout
